@@ -1,10 +1,20 @@
-get:
-	go get
+BINARY_NAME=terramaid
+VERSION=v1
+GO=go
+
+all: build
 
 build:
-		go build -o build/terramaid terramaid.go
+	$(GO) build -ldflags="-s -w" -o build/$(BINARY_NAME) main.go
 
-deps:
-	go mod download
+install:
+	$(GO) install ./...@latest
 
-.PHONY: get build deps
+clean:
+	$(GO) clean
+	rm $(BINARY_NAME)
+
+run: build
+	./$(BINARY_NAME)
+
+.PHONY: all build install clean run
