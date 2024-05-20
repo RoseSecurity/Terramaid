@@ -52,3 +52,6 @@ go.work
 # Nix
 .envrc
 .direnv/
+
+# Terramaid specific
+Terramaid.md
