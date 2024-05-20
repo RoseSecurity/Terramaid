@@ -4,49 +4,18 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"log"
 	"os"
-	"strings"
 )
 
-var filePath string
-var mermaidDiagram strings.Builder
-
-type ResourceMode string
-
-func init() {
-	flag.StringVar(&filePath, "file", "", "Path to the Terraform plan JSON file")
-}
-
-// Define the structure of the Terraform plan JSON
+// Define structures to parse Terraform plan JSON
 type Plan struct {
-	PlannedValues struct {
-		RootModule struct {
-			Resources []StateResource `json:"resources"`
-		} `json:"root_module"`
-	} `json:"planned_values"`
 	ResourceChanges []ResourceChange `json:"resource_changes"`
-}
-
-type StateResource struct {
-	Address         string                 `json:"address,omitempty"`
-	Mode            ResourceMode           `json:"mode,omitempty"`
-	Type            string                 `json:"type,omitempty"`
-	Name            string                 `json:"name,omitempty"`
-	Index           interface{}            `json:"index,omitempty"`
-	ProviderName    string                 `json:"provider_name,omitempty"`
-	SchemaVersion   uint64                 `json:"schema_version,"`
-	AttributeValues map[string]interface{} `json:"values,omitempty"`
-	SensitiveValues json.RawMessage        `json:"sensitive_values,omitempty"`
-	DependsOn       []string               `json:"depends_on,omitempty"`
-	Tainted         bool                   `json:"tainted,omitempty"`
-	DeposedKey      string                 `json:"deposed_key,omitempty"`
 }
 
 type ResourceChange struct {
 	Address string `json:"address"`
-	Mode    string `json:"mode"`
 	Type    string `json:"type"`
-	Name    string `json:"name"`
 	Change  Change `json:"change"`
 }
 
@@ -55,59 +24,78 @@ type Change struct {
 }
 
 func main() {
+	// Parse and read the plan file
+	planfile := flag.String("planfile", "tfplan.json", "path to the Terraform plan file")
 	flag.Parse()
 
-	if filePath == "" {
-		fmt.Println("Error: file path is required")
-		return
-	}
-
-	file, err := os.Open(filePath)
+	data, err := os.ReadFile(*planfile)
 	if err != nil {
-		fmt.Println("Error opening file:", err)
-		return
+		log.Fatalf("Error reading plan file: %v\n", err)
 	}
-	defer file.Close()
 
 	var plan Plan
-	err = json.NewDecoder(file).Decode(&plan)
+	err = json.Unmarshal(data, &plan)
 	if err != nil {
-		fmt.Println("Error decoding JSON:", err)
-		return
+		log.Fatalf("Error parsing plan file: %v\n", err)
 	}
 
-	// Write the initial graph definition
-	mermaidDiagram.WriteString("```mermaid\ngraph TD\n")
+	// Write the Mermaid diagram to the output file
+	outFile, err := os.Create("Terramaid.md")
+	if err != nil {
+		log.Fatalf("Error creating output file: %v\n", err)
+	} else {
+		fmt.Println("Terramaid file created")
+		defer outFile.Close()
+	}
 
-	// Iterate through resource changes and add nodes and edges
+	fmt.Fprintln(outFile, "```mermaid")
+	fmt.Fprintln(outFile, "graph TD;")
+
+	// Create a map to keep track of node names and their assigned variable
+	nodeMap := make(map[string]string)
+	varNameCounter := 0
+
+	getVarName := func() string {
+		varName := fmt.Sprint('A' + varNameCounter)
+		varNameCounter++
+		return varName
+	}
+
 	for _, rc := range plan.ResourceChanges {
-		if len(rc.Change.Actions) > 0 && (rc.Change.Actions[0] == "plan" || rc.Change.Actions[0] == "update" || rc.Change.Actions[0] == "create") {
-			// Add a node for the resource
-			resourceNode := fmt.Sprintf("%s(\"%s\"):::type_%s\n", rc.Name, rc.Address, rc.Type)
-			mermaidDiagram.WriteString(resourceNode)
+		// Assign or retrieve variable names for the nodes
+		sourceKey := rc.Type
+		targetKey := rc.Address
 
-			// Add edges for dependencies
-			for _, res := range plan.PlannedValues.RootModule.Resources {
-				if res.Address == rc.Address {
-					for _, dep := range res.DependsOn {
-						edge := fmt.Sprintf("%s --> %s\n", rc.Name, dep)
-						mermaidDiagram.WriteString(edge)
-					}
-					break
-				}
-			}
+		if _, exists := nodeMap[sourceKey]; !exists {
+			nodeMap[sourceKey] = getVarName()
+		}
+		if _, exists := nodeMap[targetKey]; !exists {
+			nodeMap[targetKey] = getVarName()
+		}
+
+		sourceVar := nodeMap[sourceKey]
+		targetVar := nodeMap[targetKey]
+
+		source := fmt.Sprintf("%s(%s)", sourceVar, rc.Type)
+		target := fmt.Sprintf("%s(%s)", targetVar, rc.Address)
+
+		if contains(rc.Change.Actions, "create") {
+			fmt.Fprintf(outFile, "%s -->|created| %s\n", source, target)
+		} else if contains(rc.Change.Actions, "update") {
+			fmt.Fprintf(outFile, "%s -->|updated| %s\n", source, target)
+		} else if contains(rc.Change.Actions, "delete") {
+			fmt.Fprintf(outFile, "%s -->|deleted| %s\n", source, target)
 		}
 	}
+	fmt.Fprintln(outFile, "```")
+}
 
-	// Close the mermaid diagram definition
-	mermaidDiagram.WriteString("```")
-
-	// Write the diagram to a file
-	err = os.WriteFile("Terramaid.md", []byte(mermaidDiagram.String()), 0644)
-	if err != nil {
-		fmt.Println("Error writing diagram file:", err)
-		return
+// Helper function to check if a slice contains a string
+func contains(slice []string, item string) bool {
+	for _, s := range slice {
+		if s == item {
+			return true
+		}
 	}
-
-	fmt.Println("Mermaid diagram generated successfully")
+	return false
 }
