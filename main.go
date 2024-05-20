@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/fatih/color"
 )
 
 // Define structures to parse Terraform plan JSON
@@ -24,13 +26,24 @@ type Change struct {
 }
 
 func main() {
-	// Parse and read the plan file
+	// Read and parse plan file
 	planfile := flag.String("planfile", "tfplan.json", "path to the Terraform plan file")
 	flag.Parse()
 
-	data, err := os.ReadFile(*planfile)
-	if err != nil {
-		log.Fatalf("Error reading plan file: %v\n", err)
+	var data []byte
+	var err error
+
+	if *planfile == "" {
+		red := color.New(color.FgRed, color.Bold)
+		red.Println("Error: No plan file provided. Please provide a file using the -planfile flag.")
+		os.Exit(1)
+	} else {
+		data, err = os.ReadFile(*planfile)
+		if err != nil {
+			red := color.New(color.FgRed, color.Bold)
+			red.Printf("Error reading plan file: %v\n", err)
+			os.Exit(1)
+		}
 	}
 
 	var plan Plan
