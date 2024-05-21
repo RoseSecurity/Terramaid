@@ -20,7 +20,7 @@ builds:
       - arm64
     binary: terramaid
     ldflags:
-      # Set `cellar` version to the GitHub release tag using Go `ldflags`
+      # Set `terramaid` version to the GitHub release tag using Go `ldflags`
       - '-s -w'
 
 archives:
