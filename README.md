@@ -83,7 +83,7 @@ jobs:
 
     - name: Download Go binary
       run: |
-        curl -L -o /usr/local/bin/terramaid https://github.com/RoseSecurity/Terramaid/releases/download/v0.1.0/Terramaid_0.1.0_linux_arm64
+        curl -L -o /usr/local/bin/terramaid https://github.com/RoseSecurity/Terramaid/releases/download/v0.1.0/Terramaid_0.1.0_linux_amd64
         chmod +x /usr/local/bin/terramaid
 
     - name: Init
