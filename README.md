@@ -48,7 +48,15 @@ terramaid -planfile tf_plan_prod.json
 cat Terramaid.md
 ```
 
-Output:
+### Docker Image
+
+Run the following command to utilize the Terramaid Docker image:
+
+```sh
+docker run -it -v $(pwd):/usr/src/terramaid rosesecurity/terramaid:latest -planfile tfplan.json
+```
+
+**Output:**
 
 ```mermaid
 graph TD;
