@@ -70,8 +70,8 @@ func ConvertToMermaid(graph *gographviz.Graph) string {
 	}
 
 	for _, edge := range graph.Edges.Edges {
-		srcName := strings.ReplaceAll(edge.Src, ".", "_")
-		dstName := strings.ReplaceAll(edge.Dst, ".", "_")
+		srcName := strings.Trim(edge.Src, "\"")
+		dstName := strings.Trim(edge.Dst, "\"")
 		sb.WriteString(fmt.Sprintf("		%s --> %s\n", srcName, dstName))
 	}
 	sb.WriteString("\tend\n```\n")
