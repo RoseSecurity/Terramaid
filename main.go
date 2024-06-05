@@ -1,26 +1,37 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
+	"log"
 	"os"
-	"os/exec"
 	"strings"
 
 	"github.com/awalterschulze/gographviz"
+	"github.com/hashicorp/terraform-exec/tfexec"
 )
 
 func main() {
-	var tfPath string
+	var tfPath, workingDir string
 	flag.StringVar(&tfPath, "tfPath", "/usr/local/bin/terraform", "Path to Terraform binary")
+	flag.StringVar(&workingDir, "workingDir", ".", "Working directory for Terraform")
 	flag.Parse()
 
-	// Run terraform graph command
-	cmd := exec.Command(tfPath, "graph")
-	output, err := cmd.Output()
+	ctx := context.Background()
+	tf, err := tfexec.NewTerraform(workingDir, tfPath)
 	if err != nil {
-		fmt.Println("Error running terraform graph command", err)
-		return
+		log.Fatalf("error creating new Terraform: %s", err)
+	}
+
+	err = tf.Init(ctx, tfexec.Upgrade(true))
+	if err != nil {
+		log.Fatalf("error initializing Terraform: %s", err)
+	}
+
+	output, err := tf.Graph(ctx)
+	if err != nil {
+		log.Fatalf("error running tf.Graph: %s", err)
 	}
 
 	// Parse the DOT output
@@ -45,6 +56,7 @@ func main() {
 		return
 	}
 }
+
 func ConvertToMermaid(graph *gographviz.Graph) string {
 	var sb strings.Builder
 
@@ -58,8 +70,8 @@ func ConvertToMermaid(graph *gographviz.Graph) string {
 	}
 
 	for _, edge := range graph.Edges.Edges {
-		srcName := strings.Trim(edge.Src, "\"")
-		dstName := strings.Trim(edge.Dst, "\"")
+		srcName := strings.ReplaceAll(edge.Src, ".", "_")
+		dstName := strings.ReplaceAll(edge.Dst, ".", "_")
 		sb.WriteString(fmt.Sprintf("		%s --> %s\n", srcName, dstName))
 	}
 	sb.WriteString("\tend\n```\n")
