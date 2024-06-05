@@ -46,7 +46,7 @@ cat Terramaid.md
 Run the following command to utilize the Terramaid Docker image:
 
 ```sh
-docker run -it -v $(pwd):/usr/src/terramaid rosesecurity/terramaid:latest -planfile tfplan.json
+docker run -it -v $(pwd):/usr/src/terramaid rosesecurity/terramaid:latest
 ```
 
 **Output:**
