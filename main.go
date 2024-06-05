@@ -1,114 +1,68 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
-	"log"
 	"os"
+	"os/exec"
+	"strings"
 
-	"github.com/fatih/color"
+	"github.com/awalterschulze/gographviz"
 )
 
-// Define structures to parse Terraform plan JSON
-type Plan struct {
-	ResourceChanges []ResourceChange `json:"resource_changes"`
-}
-
-type ResourceChange struct {
-	Address string `json:"address"`
-	Type    string `json:"type"`
-	Change  Change `json:"change"`
-}
-
-type Change struct {
-	Actions []string `json:"actions"`
-}
-
 func main() {
-	// Read and parse plan file
-	planfile := flag.String("planfile", "tfplan.json", "path to the Terraform plan file")
+	var tfPath string
+	flag.StringVar(&tfPath, "tfPath", "/usr/local/bin/terraform", "Path to Terraform binary")
 	flag.Parse()
 
-	var data []byte
-	var err error
-
-	if *planfile == "" {
-		red := color.New(color.FgRed, color.Bold)
-		red.Println("Error: No plan file provided. Please provide a file using the -planfile flag.")
-		os.Exit(1)
-	} else {
-		data, err = os.ReadFile(*planfile)
-		if err != nil {
-			red := color.New(color.FgRed, color.Bold)
-			red.Printf("Error reading plan file: %v\n", err)
-			os.Exit(1)
-		}
-	}
-
-	var plan Plan
-	err = json.Unmarshal(data, &plan)
+	// Run terraform graph command
+	cmd := exec.Command(tfPath, "graph")
+	output, err := cmd.Output()
 	if err != nil {
-		log.Fatalf("Error parsing plan file: %v\n", err)
+		fmt.Println("Error running terraform graph command", err)
+		return
 	}
 
-	// Write the Mermaid diagram to the output file
-	outFile, err := os.Create("Terramaid.md")
+	// Parse the DOT output
+	dot := string(output)
+	graphAst, err := gographviz.ParseString(dot)
 	if err != nil {
-		log.Fatalf("Error creating output file: %v\n", err)
-	} else {
-		fmt.Println("Terramaid file created")
-		defer outFile.Close()
+		fmt.Println("Error parsing DOT:", err)
+		return
 	}
 
-	fmt.Fprintln(outFile, "```mermaid")
-	fmt.Fprintln(outFile, "graph TD;")
-
-	// Create a map to keep track of node names and their assigned variable
-	nodeMap := make(map[string]string)
-	varNameCounter := 0
-
-	getVarName := func() string {
-		varName := fmt.Sprint('A' + varNameCounter)
-		varNameCounter++
-		return varName
+	graph := gographviz.NewGraph()
+	if err := gographviz.Analyse(graphAst, graph); err != nil {
+		fmt.Println("Error analyzing graph:", err)
+		return
 	}
 
-	for _, rc := range plan.ResourceChanges {
-		// Assign or retrieve variable names for the nodes
-		sourceKey := rc.Type
-		targetKey := rc.Address
-
-		if _, exists := nodeMap[sourceKey]; !exists {
-			nodeMap[sourceKey] = getVarName()
-		}
-		if _, exists := nodeMap[targetKey]; !exists {
-			nodeMap[targetKey] = getVarName()
-		}
-
-		sourceVar := nodeMap[sourceKey]
-		targetVar := nodeMap[targetKey]
-
-		source := fmt.Sprintf("%s(%s)", sourceVar, rc.Type)
-		target := fmt.Sprintf("%s(%s)", targetVar, rc.Address)
-
-		if contains(rc.Change.Actions, "create") {
-			fmt.Fprintf(outFile, "%s -->|created| %s\n", source, target)
-		} else if contains(rc.Change.Actions, "update") {
-			fmt.Fprintf(outFile, "%s -->|updated| %s\n", source, target)
-		} else if contains(rc.Change.Actions, "delete") {
-			fmt.Fprintf(outFile, "%s -->|deleted| %s\n", source, target)
-		}
+	// Convert to Mermaid format
+	mermaidGraph := ConvertToMermaid(graph)
+	err = os.WriteFile("Terramaid.md", []byte(mermaidGraph), 0644)
+	if err != nil {
+		fmt.Println("Error writing to Terramaid file:", err)
+		return
 	}
-	fmt.Fprintln(outFile, "```")
 }
+func ConvertToMermaid(graph *gographviz.Graph) string {
+	var sb strings.Builder
 
-// Helper function to check if a slice contains a string
-func contains(slice []string, item string) bool {
-	for _, s := range slice {
-		if s == item {
-			return true
-		}
+	sb.WriteString("```mermaid\n")
+	sb.WriteString("flowchart TD;\n")
+	sb.WriteString("\tsubgraph Terraform\n")
+	for _, node := range graph.Nodes.Nodes {
+		label := strings.Trim(node.Attrs["label"], "\"")
+		nodeName := strings.Trim(node.Name, "\"")
+		sb.WriteString(fmt.Sprintf("		%s[\"%s\"]\n", nodeName, label))
 	}
-	return false
+
+	for _, edge := range graph.Edges.Edges {
+		srcName := strings.Trim(edge.Src, "\"")
+		dstName := strings.Trim(edge.Dst, "\"")
+		sb.WriteString(fmt.Sprintf("		%s --> %s\n", srcName, dstName))
+	}
+	sb.WriteString("\tend\n```\n")
+
+	return sb.String()
 }

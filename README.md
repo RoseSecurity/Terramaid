@@ -26,23 +26,16 @@ make build
 
 ## Usage
 
-1. We will generate a Terraform plan file, specifically `tf_plan_prod.json`:
+1. Run the program from the directory containing your Terraform: 
 
 ```sh
-terraform plan -out tf_plan_prod
+terramaid
 ```
 
-2. After generating the plan file, we will convert it to JSON using Terraform show:
+> [!NOTE]
+> If your Terraform binary is not located at `/usr/local/bin/terraform`, you will have to provide the path to the binary. For example, on Mac, this location could be: `/opt/homebrew/bin/terraform`
 
-```sh
-terraform show -json tf_plan_prod > tf_plan_prod.json
-```
-
-3. Once the JSON plan file has been created, run `terramaid` against it and look for the populated `Terramaid.md` file!
-
-```sh
-terramaid -planfile tf_plan_prod.json
-```
+3. Look for the populated `Terramaid.md` file!
 
 ```sh
 cat Terramaid.md
@@ -59,9 +52,17 @@ docker run -it -v $(pwd):/usr/src/terramaid rosesecurity/terramaid:latest -planf
 **Output:**
 
 ```mermaid
-graph TD;
-67(aws_iam_policy) -->|created| 68(aws_iam_policy.policy)
-69(aws_s3_bucket) -->|created| 70(aws_s3_bucket.this)
+flowchart TD;
+	subgraph Terraform
+		aws_db_instance.dev_example_db_instance["aws_db_instance.dev_example_db_instance"]
+		aws_instance.dev_example_instance["aws_instance.dev_example_instance"]
+		aws_s3_bucket.dev_logs_bucket["aws_s3_bucket.dev_logs_bucket"]
+		aws_s3_bucket.dev_test_bucket["aws_s3_bucket.dev_test_bucket"]
+		aws_s3_bucket_policy.dev_logs_bucket_policy["aws_s3_bucket_policy.dev_logs_bucket_policy"]
+		aws_s3_bucket_policy.dev_test_bucket_policy["aws_s3_bucket_policy.dev_test_bucket_policy"]
+		aws_s3_bucket_policy.dev_logs_bucket_policy --> aws_s3_bucket.dev_logs_bucket
+		aws_s3_bucket_policy.dev_test_bucket_policy --> aws_s3_bucket.dev_test_bucket
+	end
 ```
 
 ## CI/CD Integration
@@ -97,16 +98,10 @@ jobs:
     - name: Init
       run: terraform init
 
-    - name: Plan
-      run: terraform plan -out=tfplan
-
-    - name: JSON Plan
-      run: terraform show -json tfplan > tfplan.json
-
     - name: Terramaid
       id: terramaid
       run: |
-        ./usr/local/bin/terramaid tfplan.json
+        ./usr/local/bin/terramaid
 
     - name: Upload comment to PR
       uses: actions/github-script@v6
