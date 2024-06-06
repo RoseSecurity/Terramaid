@@ -14,6 +14,7 @@ import (
 
 func main() {
 	var tfPath, workingDir, planFile, outputFile string
+	var output string
 
 	flag.StringVar(&tfPath, "tfPath", "/usr/local/bin/terraform", "Path to Terraform binary")
 	flag.StringVar(&workingDir, "workingDir", ".", "Working directory for Terraform")
@@ -32,7 +33,13 @@ func main() {
 		log.Fatalf("error initializing Terraform: %s", err)
 	}
 
-	output, err := tf.Graph(ctx)
+	// Graph Terraform resources
+	if planFile != "" {
+		output, err = tf.Graph(ctx, tfexec.GraphPlan(planFile))
+	} else {
+		output, err = tf.Graph(ctx)
+	}
+
 	if err != nil {
 		log.Fatalf("error running Terraform Graph command: %s", err)
 	}
