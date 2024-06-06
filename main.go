@@ -13,15 +13,18 @@ import (
 )
 
 func main() {
-	var tfPath, workingDir string
+	var tfPath, workingDir, planFile, outputFile string
+
 	flag.StringVar(&tfPath, "tfPath", "/usr/local/bin/terraform", "Path to Terraform binary")
 	flag.StringVar(&workingDir, "workingDir", ".", "Working directory for Terraform")
+	flag.StringVar(&planFile, "planFile", "", "Path to Terraform plan file")
+	flag.StringVar(&outputFile, "outputFile", "Terramaid.md", "Output file for Mermaid diagram")
 	flag.Parse()
 
 	ctx := context.Background()
 	tf, err := tfexec.NewTerraform(workingDir, tfPath)
 	if err != nil {
-		log.Fatalf("error creating new Terraform: %s", err)
+		log.Fatalf("error creating Terraform context: %s", err)
 	}
 
 	err = tf.Init(ctx, tfexec.Upgrade(true))
@@ -31,7 +34,7 @@ func main() {
 
 	output, err := tf.Graph(ctx)
 	if err != nil {
-		log.Fatalf("error running tf.Graph: %s", err)
+		log.Fatalf("error running Terraform Graph command: %s", err)
 	}
 
 	// Parse the DOT output
@@ -50,7 +53,7 @@ func main() {
 
 	// Convert to Mermaid format
 	mermaidGraph := ConvertToMermaid(graph)
-	err = os.WriteFile("Terramaid.md", []byte(mermaidGraph), 0644)
+	err = os.WriteFile(outputFile, []byte(mermaidGraph), 0644)
 	if err != nil {
 		fmt.Println("Error writing to Terramaid file:", err)
 		return
