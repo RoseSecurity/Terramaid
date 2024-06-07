@@ -8,6 +8,10 @@
   <em>A utility for creating Mermaid diagrams from Terraform plans</em>
 </p>
 
+[![Go Reference](https://img.shields.io/badge/Go%20Reference-000000.svg?logo=go)](https://pkg.go.dev/github.com/rosesecurity/terramaid)
+[![License](https://img.shields.io/badge/License-Apache%202.0-000000.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Latest Release](https://img.shields.io/badge/Latest%20Release-000000.svg?logo=github)](https://github.com/rosesecurity/terramaid/releases)
+
 ## Installation
 
 If you have a functional go environment, you can install with:
