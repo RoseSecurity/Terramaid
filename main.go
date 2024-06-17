@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	u "github.com/RoseSecurity/Terramaid/pkg/utils"
+	u "github.com/RoseSecurity/terramaid/pkg/utils"
 	"github.com/awalterschulze/gographviz"
 	"github.com/hashicorp/terraform-exec/tfexec"
 )
