@@ -4,10 +4,10 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 
+	u "github.com/RoseSecurity/Terramaid/pkg/utils"
 	"github.com/awalterschulze/gographviz"
 	"github.com/hashicorp/terraform-exec/tfexec"
 )
@@ -25,12 +25,12 @@ func main() {
 	ctx := context.Background()
 	tf, err := tfexec.NewTerraform(workingDir, tfPath)
 	if err != nil {
-		log.Fatalf("error creating Terraform context: %s", err)
+		u.LogErrorAndExit(err)
 	}
 
 	err = tf.Init(ctx, tfexec.Upgrade(true))
 	if err != nil {
-		log.Fatalf("error initializing Terraform: %s", err)
+		u.LogErrorAndExit(err)
 	}
 
 	// Graph Terraform resources
@@ -41,7 +41,7 @@ func main() {
 	}
 
 	if err != nil {
-		log.Fatalf("error running Terraform Graph command: %s", err)
+		u.LogErrorAndExit(err)
 	}
 
 	// Parse the DOT output
