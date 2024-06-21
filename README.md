@@ -72,7 +72,7 @@ flowchart TD;
 **CI/CD Example:**
 
 <p align="left">
-<img width=100% height=100% src="./docs/img/Terramaid-Demo.png">
+<img width=60% height=60% src="./docs/img/Terramaid-Demo.png">
 </p>
 
 ## CI/CD Integration
