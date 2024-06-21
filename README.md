@@ -53,7 +53,7 @@ Run the following command to utilize the Terramaid Docker image:
 docker run -it -v $(pwd):/usr/src/terramaid rosesecurity/terramaid:latest
 ```
 
-**Output:**
+**Output File:**
 
 ```mermaid
 flowchart TD;
@@ -68,6 +68,12 @@ flowchart TD;
 		aws_s3_bucket_policy.dev_test_bucket_policy --> aws_s3_bucket.dev_test_bucket
 	end
 ```
+
+**CI/CD Example:**
+
+<p align="left">
+<img width=100% height=100% src="./docs/img/Terramaid-Demo.png">
+</p>
 
 ## CI/CD Integration
 
