@@ -3,12 +3,12 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"os/exec"
 
 	"github.com/RoseSecurity/terramaid/internal"
 	"github.com/spf13/cobra"
 )
 
-// Declare variables
 var (
 	workingDir string
 	tfDir      string
@@ -22,6 +22,14 @@ var RootCmd = &cobra.Command{
 	Short:        "A utility for generating Mermaid diagrams from Terraform",
 	SilenceUsage: true,
 	Run: func(cmd *cobra.Command, args []string) {
+		var err error
+		if tfBinary == "" {
+			tfBinary, err = exec.LookPath("terraform")
+			if err != nil {
+				fmt.Printf("Error finding Terraform binary: %v\n", err)
+				os.Exit(1)
+			}
+		}
 		graph, err := internal.ParseTerraform(workingDir, tfBinary, tfPlan)
 		if err != nil {
 			fmt.Printf("Error parsing Terraform: %v\n", err)
@@ -46,6 +54,6 @@ func init() {
 	RootCmd.Flags().StringVarP(&output, "output", "o", "Terramaid.md", "Output file for Mermaid diagram")
 	RootCmd.Flags().StringVarP(&tfDir, "tfDir", "d", ".", "Path to Terraform directory")
 	RootCmd.Flags().StringVarP(&tfPlan, "tfPlan", "p", "", "Path to Terraform plan file")
-	RootCmd.Flags().StringVarP(&tfBinary, "tfBinary", "b", "/usr/local/bin/terraform", "Path to Terraform binary")
+	RootCmd.Flags().StringVarP(&tfBinary, "tfBinary", "b", "", "Path to Terraform binary")
 	RootCmd.Flags().StringVarP(&workingDir, "workingDir", "w", ".", "Working directory for Terraform")
 }
