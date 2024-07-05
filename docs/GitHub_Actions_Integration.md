@@ -1,6 +1,4 @@
-# CI/CD Integration
-
-## GitHub Actions
+# GitHub Actions Integration
 
 ```yaml
 name: Terramaid
@@ -68,11 +66,3 @@ jobs:
             body: `## Terraform Plan\n\n${terramaid}`
           })
 ```
-
-## GitLab CI/CD Pipelines
-
-**CI/CD Example:**
-
-<p align="left">
-<img width=60% height=60% src="./docs/img/Terramaid-Demo.png">
-</p>
