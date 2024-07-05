@@ -23,7 +23,7 @@ Terramaid transforms your Terraform resources and plans into visually appealing 
 If you have a functional go environment, you can install with:
 
 ```sh
-go install github.com/rosesecurity/terramaid/v1@latest
+go install github.com/RoseSecurity/terramaid@latest
 ```
 
 Build from source:
