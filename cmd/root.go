@@ -10,11 +10,13 @@ import (
 )
 
 var (
-	workingDir string
-	tfDir      string
-	tfPlan     string
-	tfBinary   string
-	output     string
+	workingDir   string
+	tfDir        string
+	tfPlan       string
+	tfBinary     string
+	output       string
+	direction    string
+	subgraphName string
 )
 
 var RootCmd = &cobra.Command{
@@ -30,12 +32,20 @@ var RootCmd = &cobra.Command{
 				os.Exit(1)
 			}
 		}
+
 		graph, err := internal.ParseTerraform(workingDir, tfBinary, tfPlan)
 		if err != nil {
 			fmt.Printf("Error parsing Terraform: %v\n", err)
 			os.Exit(1)
 		}
-		mermaidDiagram := internal.ConvertToMermaid(graph)
+
+		// Convert the graph to a Mermaid diagram
+		mermaidDiagram, err := internal.ConvertToMermaid(graph, direction, subgraphName)
+		if err != nil {
+			fmt.Printf("Error converting to Mermaid: %v\n", err)
+			os.Exit(1)
+		}
+
 		// Write the Mermaid diagram to the specified output file
 		err = os.WriteFile(output, []byte(mermaidDiagram), 0644)
 		if err != nil {
@@ -52,6 +62,8 @@ func Execute() error {
 
 func init() {
 	RootCmd.Flags().StringVarP(&output, "output", "o", "Terramaid.md", "Output file for Mermaid diagram")
+	RootCmd.Flags().StringVarP(&direction, "direction", "r", "TD", "Specify the direction of the flowchart")
+	RootCmd.Flags().StringVarP(&subgraphName, "subgraphName", "s", "Terraform", "Specify the subgraph name of the flowchart")
 	RootCmd.Flags().StringVarP(&tfDir, "tfDir", "d", ".", "Path to Terraform directory")
 	RootCmd.Flags().StringVarP(&tfPlan, "tfPlan", "p", "", "Path to Terraform plan file")
 	RootCmd.Flags().StringVarP(&tfBinary, "tfBinary", "b", "", "Path to Terraform binary")
