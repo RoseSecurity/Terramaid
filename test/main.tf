@@ -1,14 +1,14 @@
-resource "aws_s3_bucket" "dev_logs_bucket" {
-  bucket = "dev-logs-bucket"
+resource "aws_s3_bucket" "logs" {
+  bucket = "dev-logs"
 
   tags = {
-    Name        = "Dev Logs Bucket"
+    Name        = "Dev Logs"
     Environment = "dev"
   }
 }
 
-resource "aws_s3_bucket_policy" "dev_logs_bucket_policy" {
-  bucket = aws_s3_bucket.dev_logs_bucket.id
+resource "aws_s3_bucket_policy" "logs_policy" {
+  bucket = aws_s3_bucket.logs.id
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -17,24 +17,23 @@ resource "aws_s3_bucket_policy" "dev_logs_bucket_policy" {
         Effect    = "Allow"
         Principal = "*"
         Action    = ["s3:GetObject"]
-        Resource  = ["${aws_s3_bucket.dev_logs_bucket.arn}/*"]
+        Resource  = ["${aws_s3_bucket.logs.arn}/*"]
       },
     ]
   })
 }
 
-resource "aws_s3_bucket" "dev_test_bucket" {
-  bucket = "dev-test-bucket"
+resource "aws_s3_bucket" "test" {
+  bucket = "dev-test"
 
   tags = {
-    Name        = "Dev Test Bucket"
+    Name        = "Dev Test"
     Environment = "dev"
   }
-
 }
 
-resource "aws_s3_bucket_policy" "dev_test_bucket_policy" {
-  bucket = aws_s3_bucket.dev_test_bucket.id
+resource "aws_s3_bucket_policy" "test_policy" {
+  bucket = aws_s3_bucket.test.id
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -43,14 +42,13 @@ resource "aws_s3_bucket_policy" "dev_test_bucket_policy" {
         Effect    = "Allow"
         Principal = "*"
         Action    = ["s3:GetObject"]
-        Resource  = ["${aws_s3_bucket.dev_test_bucket.arn}/*"]
+        Resource  = ["${aws_s3_bucket.test.arn}/*"]
       },
     ]
   })
-
 }
 
-resource "aws_instance" "dev_example_instance" {
+resource "aws_instance" "example_instance" {
   ami           = "ami-0c94855ba95c574c8"
   instance_type = "t2.micro"
 
@@ -58,10 +56,9 @@ resource "aws_instance" "dev_example_instance" {
     Name        = "Dev Example Instance"
     Environment = "dev"
   }
-
 }
 
-resource "aws_db_instance" "dev_example_db_instance" {
+resource "aws_db_instance" "example_db" {
   allocated_storage    = 20
   storage_type         = "gp2"
   engine               = "mysql"
@@ -72,10 +69,7 @@ resource "aws_db_instance" "dev_example_db_instance" {
   parameter_group_name = "default.mysql5.7"
 
   tags = {
-    Name        = "Dev Example DB Instance"
+    Name        = "Dev Example DB"
     Environment = "dev"
   }
-
 }
-
-
