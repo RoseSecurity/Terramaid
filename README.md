@@ -18,6 +18,22 @@ Terramaid transforms your Terraform resources and plans into visually appealing 
 <img width=100% height=100% src="./docs/img/terramaid_vhs_demo.gif">
 </p>
 
+### Output
+
+```mermaid
+flowchart TD;
+        subgraph Terraform
+                aws_db_instance.dev_example_db_instance["aws_db_instance.dev_example_db_instance"]
+                aws_instance.dev_example_instance["aws_instance.dev_example_instance"]
+                aws_s3_bucket.dev_logs_bucket["aws_s3_bucket.dev_logs_bucket"]
+                aws_s3_bucket.dev_test_bucket["aws_s3_bucket.dev_test_bucket"]
+                aws_s3_bucket_policy.dev_logs_bucket_policy["aws_s3_bucket_policy.dev_logs_bucket_policy"]
+                aws_s3_bucket_policy.dev_test_bucket_policy["aws_s3_bucket_policy.dev_test_bucket_policy"]
+                aws_s3_bucket_policy.dev_logs_bucket_policy --> aws_s3_bucket.dev_logs_bucket
+                aws_s3_bucket_policy.dev_test_bucket_policy --> aws_s3_bucket.dev_test_bucket
+        end
+```
+
 ## Installation
 
 If you have a functional go environment, you can install with:
