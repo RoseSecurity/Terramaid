@@ -60,4 +60,4 @@ docker run -it -v $(pwd):/usr/src/terramaid rosesecurity/terramaid:latest
 
 ## CI/CD Integrations
 
-Terramaid is designed to easily integrate with existing pipelines and workflows. For more information on sample GitHub Actions and GitLab CI/CD Pipelines, feel free to check out [CI/CD Integrations](./docs/CI_CD_Integrations.md)
+Terramaid is designed to easily integrate with existing pipelines and workflows. For more information on sample GitHub Actions and GitLab CI/CD Pipelines, feel free to check out [GitHub Actions Integrations](./docs/GitHub_Actions_Integration.md) and [Gitlab Pipelines Integrations](./docs/GitLab_Pipelines_Integration.md).
