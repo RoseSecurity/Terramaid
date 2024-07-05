@@ -12,9 +12,12 @@ install:
 
 clean:
 	$(GO) clean
-	rm $(BINARY_NAME)
+	rm ./build/$(BINARY_NAME)
 
 run: build
-	./$(BINARY_NAME)
+	./build/$(BINARY_NAME)
+
+docs: build
+	./build/$(BINARY_NAME) docs
 
 .PHONY: all build install clean run
