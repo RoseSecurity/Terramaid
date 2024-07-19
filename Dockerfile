@@ -8,7 +8,7 @@ RUN apk update && apk add --no-cache \
     unzip
 
 # Install Terraform
-RUN curl -fsSL https://releases.hashicorp.com/terraform/1.9.1/terraform_1.9.1_linux_amd64.zip -o terraform.zip && \
+RUN curl -fsSL https://releases.hashicorp.com/terraform/1.9.2/terraform_1.9.2_linux_amd64.zip -o terraform.zip && \
     unzip terraform.zip && \
     mv terraform /usr/local/bin/ && \
     rm terraform.zip
@@ -23,4 +23,3 @@ RUN go build -v -o /usr/local/bin/terramaid main.go
 
 # Set the entrypoint and default command
 ENTRYPOINT ["/usr/local/bin/terramaid"]
-
