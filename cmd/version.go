@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var Version = "1.0.0"
+var Version = "1.6.2"
 
 type Release struct {
 	TagName string `json:"tag_name"`
