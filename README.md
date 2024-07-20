@@ -36,6 +36,12 @@ flowchart TD;
 
 ## Installation
 
+Homebrew installation:
+
+```sh
+brew install terramaid
+```
+
 If you have a functional go environment, you can install with:
 
 ```sh
