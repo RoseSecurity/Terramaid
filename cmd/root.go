@@ -17,6 +17,7 @@ var (
 	output       string
 	direction    string
 	subgraphName string
+	chartType    string
 )
 
 var RootCmd = &cobra.Command{
@@ -39,10 +40,16 @@ var RootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		// Convert the graph to a Mermaid diagram
-		mermaidDiagram, err := internal.ConvertToMermaid(graph, direction, subgraphName)
-		if err != nil {
-			fmt.Printf("Error converting to Mermaid: %v\n", err)
+		var mermaidDiagram string
+		switch chartType {
+		case "flowchart":
+			mermaidDiagram, err = internal.ConvertToMermaidFlowchart(graph, direction, subgraphName)
+			if err != nil {
+				fmt.Printf("Error converting to Mermaid Flowchart: %v\n", err)
+				os.Exit(1)
+			}
+		default:
+			fmt.Printf("Unsupported chart type: %s\n", chartType)
 			os.Exit(1)
 		}
 
@@ -64,6 +71,7 @@ func init() {
 	RootCmd.Flags().StringVarP(&output, "output", "o", "Terramaid.md", "Output file for Mermaid diagram")
 	RootCmd.Flags().StringVarP(&direction, "direction", "r", "TD", "Specify the direction of the flowchart")
 	RootCmd.Flags().StringVarP(&subgraphName, "subgraphName", "s", "Terraform", "Specify the subgraph name of the flowchart")
+	RootCmd.Flags().StringVarP(&chartType, "chartType", "c", "flowchart", "Specify the type of Mermaid chart")
 	RootCmd.Flags().StringVarP(&tfDir, "tfDir", "d", ".", "Path to Terraform directory")
 	RootCmd.Flags().StringVarP(&tfPlan, "tfPlan", "p", "", "Path to Terraform plan file")
 	RootCmd.Flags().StringVarP(&tfBinary, "tfBinary", "b", "", "Path to Terraform binary")

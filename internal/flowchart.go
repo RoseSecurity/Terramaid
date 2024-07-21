@@ -61,7 +61,7 @@ func TransformGraph(graph *gographviz.Graph) Graph {
 
 // Converts a gographviz graph to a Mermaid.js compatible string.
 // It accepts a graph, direction, and an optional subgraph name.
-func ConvertToMermaid(graph *gographviz.Graph, direction string, subgraphName string) (string, error) {
+func ConvertToMermaidFlowchart(graph *gographviz.Graph, direction string, subgraphName string) (string, error) {
 	var sb strings.Builder
 
 	// Validate the direction of the flowchart. Valid options are: TB, TD, BT, RL, LR
