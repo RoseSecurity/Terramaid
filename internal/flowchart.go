@@ -35,6 +35,17 @@ func CleanID(id string) string {
 	return re.ReplaceAllString(id, "")
 }
 
+// Extracts the provider for separate subgraph
+func ExtractProvider(label string) string {
+	if strings.Contains(label, "provider") {
+		parts := strings.Split(label, "/")
+		if len(parts) > 2 {
+			return parts[len(parts)-2]
+		}
+	}
+	return ""
+}
+
 // Transforms the parsed graph into cleaned nodes and edges
 func TransformGraph(graph *gographviz.Graph) Graph {
 	nodes := []Node{}
@@ -75,6 +86,16 @@ func ConvertToMermaidFlowchart(graph *gographviz.Graph, direction string, subgra
 	// Start Mermaid graph definition
 	sb.WriteString("```mermaid\n")
 	sb.WriteString("flowchart " + direction + "\n")
+
+	// Add subgraph for providers
+	for _, node := range graph.Nodes.Nodes {
+		provider := ExtractProvider(cleanedLabel)
+		if provider != "" {
+			sb.WriteString(fmt.Sprintf("\tsubgraph %s\n", provider))
+			break
+		}
+	}
+
 	if subgraphName != "" {
 		sb.WriteString(fmt.Sprintf("\tsubgraph %s\n", subgraphName))
 	}
@@ -84,7 +105,7 @@ func ConvertToMermaidFlowchart(graph *gographviz.Graph, direction string, subgra
 		label := CleanLabel(node.Attrs["label"])
 		nodeName := CleanID(node.Name)
 		if label != "" && nodeName != "" && !strings.Contains(label, "provider") {
-			sb.WriteString(fmt.Sprintf("\t%s[\"%s\"]\n", nodeName, label))
+			sb.WriteString(fmt.Sprintf("\t\t%s[\"%s\"]\n", nodeName, label))
 		}
 	}
 
@@ -95,11 +116,12 @@ func ConvertToMermaidFlowchart(graph *gographviz.Graph, direction string, subgra
 		srcName := CleanID(edge.Src)
 		dstName := CleanID(edge.Dst)
 		if srcLabel != "" && dstLabel != "" && !strings.Contains(srcLabel, "provider") && !strings.Contains(dstLabel, "provider") {
-			sb.WriteString(fmt.Sprintf("\t%s --> %s\n", srcName, dstName))
+			sb.WriteString(fmt.Sprintf("\t\t%s --> %s\n", srcName, dstName))
 		}
 	}
 
 	if subgraphName != "" {
+		// Typing "end" in all lowercase letters will break the Flowchart
 		sb.WriteString("\tend\n")
 	}
 	sb.WriteString("```\n")
