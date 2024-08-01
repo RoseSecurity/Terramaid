@@ -56,6 +56,36 @@ cd terramaid
 make build
 ```
 
+### Usage
+`terramaid` can be configured using CLI args and Env vars. While CLI args have precedence over the latter.
+
+
+The following configuration options are available:
+```bash
+> terramaid -h
+A utility for generating Mermaid diagrams from Terraform
+
+Usage:
+  terramaid [flags]
+  terramaid [command]
+
+Available Commands:
+  completion  Generate the autocompletion script for the specified shell
+  help        Help about any command
+  version     Print the CLI version
+
+Flags:
+  -r, --direction string       Specify the direction of the flowchart (env: TERRAMAID_DIRECTION) (default "TD")
+  -h, --help                   help for terramaid
+  -o, --output string          Output file for Mermaid diagram (env: TERRAMAID_OUTPUT) (default "Terramaid.md")
+  -s, --subgraph-name string   Specify the subgraph name of the flowchart (env: TERRAMAID_SUBGRAPH_NAME) (default "Terraform")
+  -b, --tf-binary string       Path to Terraform binary (env: TERRAMAID_TF_BINARY)
+  -d, --tf-dir string          Path to Terraform directory (env: TERRAMAID_TF_DIR) (default ".")
+  -p, --tf-plan string         Path to Terraform plan file (env: TERRAMAID_TF_PLAN)
+  -w, --working-wir string     Working directory for Terraform (env: TERRAMAID_WORKING_DIR) (default ".")
+
+Use "terramaid [command] --help" for more information about a command.
+```
 ### Docker Image
 
 Run the following command to utilize the Terramaid Docker image:
