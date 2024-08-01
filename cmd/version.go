@@ -11,28 +11,30 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var Version = "1.6.3"
-
 type Release struct {
 	TagName string `json:"tag_name"`
 }
 
-var versionCmd = &cobra.Command{
-	Use:     "version",
-	Short:   "Print the CLI version",
-	Long:    `This command prints the CLI version`,
-	Example: "terramaid version",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("terramaid: " + Version)
-		latestReleaseTag, err := latestRelease()
-		if err == nil && latestReleaseTag != "" {
-			latestRelease := strings.TrimPrefix(latestReleaseTag, "v")
-			currentRelease := strings.TrimPrefix(Version, "v")
-			if latestRelease != currentRelease {
-				updateTerramaid(latestRelease)
+func versionCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "version",
+		Short:   "Print the CLI version",
+		Long:    `This command prints the CLI version`,
+		Example: "terramaid version",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println("terramaid: " + Version)
+			latestReleaseTag, err := latestRelease()
+			if err == nil && latestReleaseTag != "" {
+				latestRelease := strings.TrimPrefix(latestReleaseTag, "v")
+				currentRelease := strings.TrimPrefix(Version, "v")
+				if latestRelease != currentRelease {
+					updateTerramaid(latestRelease)
+				}
 			}
-		}
-	},
+		},
+	}
+
+	return cmd
 }
 
 func latestRelease() (string, error) {
@@ -59,8 +61,4 @@ func updateTerramaid(latestVersion string) {
 	c1 := color.New(color.FgCyan)
 
 	c1.Println(fmt.Sprintf("\nYour version of Terramaid is out of date. The latest version is %s\n\n", latestVersion))
-}
-
-func init() {
-	RootCmd.AddCommand(versionCmd)
 }
