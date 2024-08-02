@@ -7,11 +7,13 @@ import (
 	"os/exec"
 
 	"github.com/RoseSecurity/terramaid/internal"
+	"github.com/RoseSecurity/terramaid/pkg/utils"
 	"github.com/caarlos0/env/v11"
 	"github.com/spf13/cobra"
 )
 
 var Version = "0.0.1"
+
 type opts struct {
 	WorkingDir   string `env:"WORKING_DIR" envDefault:"."`
 	TFDir        string `env:"TF_DIR" envDefault:"."`
@@ -27,15 +29,27 @@ func TerramaidCmd() *cobra.Command {
 
 	// Parse Envs
 	if err := env.ParseWithOptions(opts, env.Options{Prefix: "TERRAMAID_"}); err != nil {
-		log.Fatalf("error parsing envs: %w", err)
+		log.Fatalf("error parsing envs: %s", err.Error())
 	}
 
 	cmd := &cobra.Command{
-		Use:          "terramaid",
-		Short:        "A utility for generating Mermaid diagrams from Terraform",
-		SilenceUsage: true,
+		Use:           "terramaid",
+		Short:         "A utility for generating Mermaid diagrams from Terraform",
+		SilenceUsage:  true,
 		SilenceErrors: true,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			if opts.TFDir != "" && !utils.DirExists(opts.TFDir) {
+				return fmt.Errorf("TF Dir \"%s\" does not exist", opts.TFDir)
+			}
+
+			if opts.WorkingDir != "" && !utils.DirExists(opts.WorkingDir) {
+				return fmt.Errorf("working Dir \"%s\" does not exist", opts.WorkingDir)
+			}
+
+			if opts.TFPlan != "" && !utils.DirExists(opts.TFPlan) {
+				return fmt.Errorf("TF planfile \"%s\" does not exist", opts.TFPlan)
+			}
+
 			if opts.TFBinary == "" {
 				tfBinary, err := exec.LookPath("terraform")
 				if err != nil {
@@ -45,6 +59,9 @@ func TerramaidCmd() *cobra.Command {
 				opts.TFBinary = tfBinary
 			}
 
+			return nil
+		},
+		RunE: func(cmd *cobra.Command, args []string) error {
 			graph, err := internal.ParseTerraform(opts.WorkingDir, opts.TFBinary, opts.TFPlan)
 			if err != nil {
 				return fmt.Errorf("error parsing Terraform: %w", err)
@@ -53,12 +70,12 @@ func TerramaidCmd() *cobra.Command {
 			// Convert the graph to a Mermaid diagram
 			mermaidDiagram, err := internal.ConvertToMermaid(graph, opts.Direction, opts.SubgraphName)
 			if err != nil {
-				return fmt.Errorf("error converting to Mermaid: %w\n", err)
+				return fmt.Errorf("error converting to Mermaid: %w", err)
 			}
 
 			// Write the Mermaid diagram to the specified output file
 			if err := os.WriteFile(opts.Output, []byte(mermaidDiagram), 0o644); err != nil {
-				return fmt.Errorf("Error writing to file: %w\n", err)
+				return fmt.Errorf("error writing to file: %w", err)
 			}
 
 			fmt.Printf("Mermaid diagram successfully written to %s\n", opts.Output)
