@@ -21,17 +21,19 @@ Terramaid transforms your Terraform resources and plans into visually appealing 
 ### Output
 
 ```mermaid
-flowchart TD;
-        subgraph Terraform
-                aws_db_instance.dev_example_db_instance["aws_db_instance.dev_example_db_instance"]
-                aws_instance.dev_example_instance["aws_instance.dev_example_instance"]
-                aws_s3_bucket.dev_logs_bucket["aws_s3_bucket.dev_logs_bucket"]
-                aws_s3_bucket.dev_test_bucket["aws_s3_bucket.dev_test_bucket"]
-                aws_s3_bucket_policy.dev_logs_bucket_policy["aws_s3_bucket_policy.dev_logs_bucket_policy"]
-                aws_s3_bucket_policy.dev_test_bucket_policy["aws_s3_bucket_policy.dev_test_bucket_policy"]
-                aws_s3_bucket_policy.dev_logs_bucket_policy --> aws_s3_bucket.dev_logs_bucket
-                aws_s3_bucket_policy.dev_test_bucket_policy --> aws_s3_bucket.dev_test_bucket
-        end
+flowchart TD
+ subgraph Hashicorp
+ subgraph Terraform
+  aws_db_instance.example_db["aws_db_instance.example_db"]
+  aws_instance.example_instance["aws_instance.example_instance"]
+  aws_s3_bucket.logs["aws_s3_bucket.logs"]
+  aws_s3_bucket.test["aws_s3_bucket.test"]
+  aws_s3_bucket_policy.logs_policy["aws_s3_bucket_policy.logs_policy"]
+  aws_s3_bucket_policy.test_policy["aws_s3_bucket_policy.test_policy"]
+  aws_s3_bucket_policy.logs_policy --> aws_s3_bucket.logs
+  aws_s3_bucket_policy.test_policy --> aws_s3_bucket.test
+ end
+ end
 ```
 
 ## Installation
@@ -54,6 +56,41 @@ Build from source:
 git clone git@github.com:RoseSecurity/terramaid.git
 cd terramaid
 make build
+```
+
+### Usage
+
+`terramaid` can be configured using CLI parameters and environment variables.
+
+> [!NOTE]
+> CLI parameters take precedence over environment variables.
+
+The following configuration options are available:
+
+```sh
+> terramaid -h
+A utility for generating Mermaid diagrams from Terraform
+
+Usage:
+  terramaid [flags]
+  terramaid [command]
+
+Available Commands:
+  completion  Generate the autocompletion script for the specified shell
+  help        Help about any command
+  version     Print the CLI version
+
+Flags:
+  -r, --direction string       Specify the direction of the flowchart (env: TERRAMAID_DIRECTION) (default "TD")
+  -h, --help                   help for terramaid
+  -o, --output string          Output file for Mermaid diagram (env: TERRAMAID_OUTPUT) (default "Terramaid.md")
+  -s, --subgraph-name string   Specify the subgraph name of the flowchart (env: TERRAMAID_SUBGRAPH_NAME) (default "Terraform")
+  -b, --tf-binary string       Path to Terraform binary (env: TERRAMAID_TF_BINARY)
+  -d, --tf-dir string          Path to Terraform directory (env: TERRAMAID_TF_DIR) (default ".")
+  -p, --tf-plan string         Path to Terraform plan file (env: TERRAMAID_TF_PLAN)
+  -w, --working-wir string     Working directory for Terraform (env: TERRAMAID_WORKING_DIR) (default ".")
+
+Use "terramaid [command] --help" for more information about a command.
 ```
 
 ### Docker Image
