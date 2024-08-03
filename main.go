@@ -5,9 +5,12 @@ import (
 	u "github.com/RoseSecurity/terramaid/pkg/utils"
 )
 
+var version string
+
 func main() {
-	err := cmd.Execute()
-	if err != nil {
+	cmd.Version = version
+
+	if err := cmd.Execute(); err != nil {
 		u.LogErrorAndExit(err)
 	}
 }

@@ -4,6 +4,7 @@ go 1.22.2
 
 require (
 	github.com/awalterschulze/gographviz v2.0.3+incompatible
+	github.com/caarlos0/env/v11 v11.1.0
 	github.com/fatih/color v1.17.0
 	github.com/hashicorp/terraform-exec v0.21.0
 	github.com/spf13/cobra v1.8.1
