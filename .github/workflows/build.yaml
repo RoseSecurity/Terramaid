@@ -59,3 +59,17 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: rosesecurity/terramaid:latest
+
+  homebrew:
+    name: "Bump Homebrew Formula"
+    runs-on: ubuntu-latest
+    needs: release
+    steps:
+      - uses: mislav/bump-homebrew-formula-action@v3
+        with:
+          # A PR will be sent to github.com/Homebrew/homebrew-core to update this formula:
+          formula-name: terramaid
+          formula-path: Formula/t/terramaid.rb
+        env:
+          COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
+
