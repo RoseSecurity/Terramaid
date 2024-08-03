@@ -31,7 +31,6 @@ func TerraformFilesExist(dir string) bool {
 		}
 		return nil
 	})
-
 	if err != nil {
 		return false
 	}

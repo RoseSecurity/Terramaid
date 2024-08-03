@@ -7,8 +7,7 @@ import (
 
 	"github.com/awalterschulze/gographviz"
 	"golang.org/x/text/cases"
-  "golang.org/x/text/language"
-
+	"golang.org/x/text/language"
 )
 
 type Node struct {
@@ -90,7 +89,7 @@ func ConvertToMermaidFlowchart(graph *gographviz.Graph, direction string, subgra
 	// Start Mermaid graph definition
 	sb.WriteString("```mermaid\n")
 	sb.WriteString("flowchart " + direction + "\n")
-	
+
 	// Add subgraph for providers
 	providerSubgraphs := make(map[string]bool)
 	for _, n := range graph.Nodes.Nodes {
@@ -101,11 +100,11 @@ func ConvertToMermaidFlowchart(graph *gographviz.Graph, direction string, subgra
 			providerSubgraphs[provider] = true
 		}
 	}
-	
+
 	if subgraphName != "" {
 		sb.WriteString(fmt.Sprintf("\tsubgraph %s\n", subgraphName))
 	}
-	
+
 	// Iterate over nodes to add them to the Mermaid graph
 	for _, n := range graph.Nodes.Nodes {
 		label := CleanLabel(n.Attrs["label"])
@@ -114,7 +113,7 @@ func ConvertToMermaidFlowchart(graph *gographviz.Graph, direction string, subgra
 			sb.WriteString(fmt.Sprintf("\t\t%s[\"%s\"]\n", nodeName, label))
 		}
 	}
-	
+
 	// Iterate over edges to add them to the Mermaid graph
 	for _, edge := range graph.Edges.Edges {
 		srcLabel := CleanLabel(graph.Nodes.Lookup[edge.Src].Attrs["label"])
@@ -125,7 +124,7 @@ func ConvertToMermaidFlowchart(graph *gographviz.Graph, direction string, subgra
 			sb.WriteString(fmt.Sprintf("\t\t%s --> %s\n", srcName, dstName))
 		}
 	}
-	
+
 	// Close all open subgraphs
 	for range providerSubgraphs {
 		sb.WriteString("\tend\n")
@@ -133,7 +132,7 @@ func ConvertToMermaidFlowchart(graph *gographviz.Graph, direction string, subgra
 	if subgraphName != "" {
 		sb.WriteString("\tend\n")
 	}
-	
+
 	sb.WriteString("```\n")
 	return sb.String(), nil
 }
