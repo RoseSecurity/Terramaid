@@ -57,11 +57,15 @@ make build
 ```
 
 ### Usage
-`terramaid` can be configured using CLI args and Env vars. While CLI args have precedence over the latter.
 
+`terramaid` can be configured using CLI parameters and environment variables.
+
+> [!NOTE]
+> CLI parameters take precedence over environment variables.
 
 The following configuration options are available:
-```bash
+
+```sh
 > terramaid -h
 A utility for generating Mermaid diagrams from Terraform
 
@@ -86,6 +90,7 @@ Flags:
 
 Use "terramaid [command] --help" for more information about a command.
 ```
+
 ### Docker Image
 
 Run the following command to utilize the Terramaid Docker image:

@@ -1,4 +1,4 @@
-name: E2E
+name: Test
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
       - main
 
 jobs:
-  E2E:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

@@ -14,7 +14,7 @@ import (
 
 var Version = "0.0.1"
 
-type opts struct {
+type options struct {
 	WorkingDir   string `env:"WORKING_DIR" envDefault:"."`
 	TFDir        string `env:"TF_DIR" envDefault:"."`
 	TFPlan       string `env:"TF_PLAN"`
@@ -22,13 +22,14 @@ type opts struct {
 	Output       string `env:"OUTPUT" envDefault:"Terramaid.md"`
 	Direction    string `env:"DIRECTION" envDefault:"TD"`
 	SubgraphName string `env:"SUBGRAPH_NAME" envDefault:"Terraform"`
+	chartType    string `env:"CHART_TYPE" envDefault:"flowchart"`
 }
 
 func TerramaidCmd() *cobra.Command {
-	opts := &opts{}
+	options := &options{}
 
 	// Parse Envs
-	if err := env.ParseWithOptions(opts, env.Options{Prefix: "TERRAMAID_"}); err != nil {
+	if err := env.ParseWithOptions(options, env.Options{Prefix: "TERRAMAID_"}); err != nil {
 		log.Fatalf("error parsing envs: %s", err.Error())
 	}
 
@@ -38,59 +39,71 @@ func TerramaidCmd() *cobra.Command {
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			if opts.TFDir != "" && !utils.DirExists(opts.TFDir) {
-				return fmt.Errorf("TF Dir \"%s\" does not exist", opts.TFDir)
+			if options.TFDir != "" && !utils.DirExists(options.TFDir) {
+				return fmt.Errorf("Terraform directory \"%s\" does not exist", options.TFDir)
 			}
 
-			if opts.WorkingDir != "" && !utils.DirExists(opts.WorkingDir) {
-				return fmt.Errorf("working Dir \"%s\" does not exist", opts.WorkingDir)
+			if options.TFDir != "" && !utils.TerraformFilesExist(options.TFDir) {
+				return fmt.Errorf("Terraform files do not exist in directory \"%s\"", options.TFDir)
 			}
 
-			if opts.TFPlan != "" && !utils.DirExists(opts.TFPlan) {
-				return fmt.Errorf("TF planfile \"%s\" does not exist", opts.TFPlan)
+			if options.WorkingDir != "" && !utils.DirExists(options.WorkingDir) {
+				return fmt.Errorf("Working directory \"%s\" does not exist", options.WorkingDir)
 			}
 
-			if opts.TFBinary == "" {
+			if options.TFPlan != "" && !utils.DirExists(options.TFPlan) {
+				return fmt.Errorf("Terraform planfile \"%s\" does not exist", options.TFPlan)
+			}
+
+			if options.TFBinary == "" {
 				tfBinary, err := exec.LookPath("terraform")
 				if err != nil {
 					return fmt.Errorf("error finding Terraform binary: %w", err)
 				}
 
-				opts.TFBinary = tfBinary
+				options.TFBinary = tfBinary
 			}
 
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			graph, err := internal.ParseTerraform(opts.WorkingDir, opts.TFBinary, opts.TFPlan)
+			graph, err := internal.ParseTerraform(options.WorkingDir, options.TFBinary, options.TFPlan)
 			if err != nil {
 				return fmt.Errorf("error parsing Terraform: %w", err)
 			}
 
 			// Convert the graph to a Mermaid diagram
-			mermaidDiagram, err := internal.ConvertToMermaid(graph, opts.Direction, opts.SubgraphName)
-			if err != nil {
-				return fmt.Errorf("error converting to Mermaid: %w", err)
+			switch chartType {
+			case "flowchart":
+				mermaidDiagram, err = internal.ConvertToMermaidFlowchart(graph, options.Direction, options.SubgraphName)
+				if err != nil {
+					return fmt.Errorf("error converting to Mermaid flowchart: %w", err)
+					os.Exit(1)
+				}
+			default:
+				fmt.Printf("Unsupported chart type: %s\n", chartType)
+				os.Exit(1)
 			}
 
 			// Write the Mermaid diagram to the specified output file
-			if err := os.WriteFile(opts.Output, []byte(mermaidDiagram), 0o644); err != nil {
+			if err := os.WriteFile(options.Output, []byte(mermaidDiagram), 0o644); err != nil {
 				return fmt.Errorf("error writing to file: %w", err)
 			}
 
-			fmt.Printf("Mermaid diagram successfully written to %s\n", opts.Output)
+			fmt.Printf("Mermaid diagram successfully written to %s\n", options.Output)
 
 			return nil
 		},
 	}
 
-	cmd.Flags().StringVarP(&opts.Output, "output", "o", opts.Output, "Output file for Mermaid diagram (env: TERRAMAID_OUTPUT)")
-	cmd.Flags().StringVarP(&opts.Direction, "direction", "r", opts.Direction, "Specify the direction of the flowchart (env: TERRAMAID_DIRECTION)")
-	cmd.Flags().StringVarP(&opts.SubgraphName, "subgraph-name", "s", opts.SubgraphName, "Specify the subgraph name of the flowchart (env: TERRAMAID_SUBGRAPH_NAME)")
-	cmd.Flags().StringVarP(&opts.TFDir, "tf-dir", "d", opts.TFDir, "Path to Terraform directory (env: TERRAMAID_TF_DIR)")
-	cmd.Flags().StringVarP(&opts.TFPlan, "tf-plan", "p", opts.TFPlan, "Path to Terraform plan file (env: TERRAMAID_TF_PLAN)")
-	cmd.Flags().StringVarP(&opts.TFBinary, "tf-binary", "b", opts.TFBinary, "Path to Terraform binary (env: TERRAMAID_TF_BINARY)")
-	cmd.Flags().StringVarP(&opts.WorkingDir, "working-dir", "w", opts.WorkingDir, "Working directory for Terraform (env: TERRAMAID_WORKING_DIR)")
+	cmd.Flags().StringVarP(&options.Output, "output", "o", options.Output, "Output file for Mermaid diagram (env: TERRAMAID_OUTPUT)")
+	cmd.Flags().StringVarP(&options.Direction, "direction", "r", options.Direction, "Specify the direction of the diagram (env: TERRAMAID_DIRECTION)")
+	cmd.Flags().StringVarP(&options.SubgraphName, "subgraph-name", "s", options.SubgraphName, "Specify the subgraph name of the diagram (env: TERRAMAID_SUBGRAPH_NAME)")
+	cmd.Flags().StringVarP(&options.chartType, "chart-type", "c", options.chartType, "Specify the type of Mermaid chart to generate (env: TERRAMAID_CHART_TYPE)")
+	cmd.Flags().StringVarP(&options.TFDir, "tf-dir", "d", options.TFDir, "Path to Terraform directory (env: TERRAMAID_TF_DIR)")
+	cmd.Flags().StringVarP(&options.TFPlan, "tf-plan", "p", options.TFPlan, "Path to Terraform plan file (env: TERRAMAID_TF_PLAN)")
+	cmd.Flags().StringVarP(&options.TFBinary, "tf-binary", "b", options.TFBinary, "Path to Terraform binary (env: TERRAMAID_TF_BINARY)")
+	cmd.Flags().StringVarP(&options.WorkingDir, "working-dir", "w", options.WorkingDir, "Working directory for Terraform (env: TERRAMAID_WORKING_DIR)")
 
 	cmd.AddCommand(docsCmd(), versionCmd())
 
