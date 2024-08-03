@@ -22,7 +22,7 @@ type options struct {
 	Output       string `env:"OUTPUT" envDefault:"Terramaid.md"`
 	Direction    string `env:"DIRECTION" envDefault:"TD"`
 	SubgraphName string `env:"SUBGRAPH_NAME" envDefault:"Terraform"`
-	chartType    string `env:"CHART_TYPE" envDefault:"flowchart"`
+	ChartType    string `env:"CHART_TYPE" envDefault:"flowchart"`
 }
 
 func TerramaidCmd() *cobra.Command {
@@ -73,16 +73,15 @@ func TerramaidCmd() *cobra.Command {
 			}
 
 			// Convert the graph to a Mermaid diagram
-			switch chartType {
+			var mermaidDiagram string
+			switch options.ChartType {
 			case "flowchart":
 				mermaidDiagram, err = internal.ConvertToMermaidFlowchart(graph, options.Direction, options.SubgraphName)
 				if err != nil {
 					return fmt.Errorf("error converting to Mermaid flowchart: %w", err)
-					os.Exit(1)
 				}
 			default:
-				fmt.Printf("Unsupported chart type: %s\n", chartType)
-				os.Exit(1)
+				return fmt.Errorf("unsupported chart type: %s", options.ChartType)
 			}
 
 			// Write the Mermaid diagram to the specified output file
@@ -99,7 +98,7 @@ func TerramaidCmd() *cobra.Command {
 	cmd.Flags().StringVarP(&options.Output, "output", "o", options.Output, "Output file for Mermaid diagram (env: TERRAMAID_OUTPUT)")
 	cmd.Flags().StringVarP(&options.Direction, "direction", "r", options.Direction, "Specify the direction of the diagram (env: TERRAMAID_DIRECTION)")
 	cmd.Flags().StringVarP(&options.SubgraphName, "subgraph-name", "s", options.SubgraphName, "Specify the subgraph name of the diagram (env: TERRAMAID_SUBGRAPH_NAME)")
-	cmd.Flags().StringVarP(&options.chartType, "chart-type", "c", options.chartType, "Specify the type of Mermaid chart to generate (env: TERRAMAID_CHART_TYPE)")
+	cmd.Flags().StringVarP(&options.ChartType, "chart-type", "c", options.ChartType, "Specify the type of Mermaid chart to generate (env: TERRAMAID_CHART_TYPE)")
 	cmd.Flags().StringVarP(&options.TFDir, "tf-dir", "d", options.TFDir, "Path to Terraform directory (env: TERRAMAID_TF_DIR)")
 	cmd.Flags().StringVarP(&options.TFPlan, "tf-plan", "p", options.TFPlan, "Path to Terraform plan file (env: TERRAMAID_TF_PLAN)")
 	cmd.Flags().StringVarP(&options.TFBinary, "tf-binary", "b", options.TFBinary, "Path to Terraform binary (env: TERRAMAID_TF_BINARY)")
