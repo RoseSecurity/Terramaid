@@ -18,5 +18,5 @@ jobs:
           cache: false
       - run: |
           make build
-          terramaid -w test/
+          build/terramaid -w test/
           cat Terramaid.md
