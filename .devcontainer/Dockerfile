@@ -26,3 +26,4 @@ RUN curl -sS https://starship.rs/install.sh | sh -s -- -y
 # Install the rootfs/ configurations
 COPY rootfs/ /
 
+

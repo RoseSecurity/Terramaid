@@ -1,12 +1,5 @@
 {
   "name": "Terramaid Demo",
-  "security.workspace.trust.emptyWindow": true,
-  "security.workspace.trust.untrustedFiles": "prompt",
-  "security.workspace.trust.domain": {
-    "*.github.com": true,
-    "*.app.github.dev": true,
-    "localhost": true
-  },
   "build": {
     "dockerfile": "Dockerfile",
     "context": "."
@@ -16,13 +9,10 @@
     "memory": "16gb",
     "storage": "32gb"
   },
-  "postCreateCommand": "/workspace/.devcontainer/post_create.sh",
+  "postCreateCommand": "/workspace/Terramaid/.devcontainer/post_create.sh",
   "features": {
-    /*"ghcr.io/devcontainers/features/go:1": {
-      "version": "1.22"
-    }*/
   },
-  "workspaceFolder": "/workspace/test",
+  "workspaceFolder": "/workspace/Terramaid/test",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
   "customizations": {
     "vscode": {
@@ -52,4 +42,3 @@
     }
   }
 }
-
