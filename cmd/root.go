@@ -104,7 +104,7 @@ func TerramaidCmd() *cobra.Command {
 	cmd.Flags().StringVarP(&options.TFBinary, "tf-binary", "b", options.TFBinary, "Path to Terraform binary (env: TERRAMAID_TF_BINARY)")
 	cmd.Flags().StringVarP(&options.WorkingDir, "working-dir", "w", options.WorkingDir, "Working directory for Terraform (env: TERRAMAID_WORKING_DIR)")
 
-	cmd.AddCommand(docsCmd(), versionCmd())
+	cmd.AddCommand(docsCmd(), versionCmd(Version))
 
 	return cmd
 }
