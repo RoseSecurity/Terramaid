@@ -1,4 +1,4 @@
-FROM golang:1.22
+FROM golang:1.22 AS terramaid
 
 ARG TERRAFORM_VERSION=1.9.2
 
@@ -7,10 +7,10 @@ go install github.com/RoseSecurity/terramaid@latest
 
 # Install required packages
 RUN apt-get update && \
-    apt-get install -y zsh-autosuggestions zsh
+    apt-get install -y zsh-autosuggestions 
 
 # Change shell to zsh
-RUN chsh -s /bin/zsh
+RUN chsh -s /bin/zsh vscode
 
 # Install Terraform
 RUN curl -fsSL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip -o terraform.zip && \
