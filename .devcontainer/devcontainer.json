@@ -17,7 +17,7 @@
   "customizations": {
     "codespaces": {
       "openFiles": [
-        "/workspace/docs/Getting_Started.md"
+        "docs/Getting_Started.md"
       ]
     },
     "vscode": {
