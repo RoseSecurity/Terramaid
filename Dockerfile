@@ -1,5 +1,8 @@
 FROM golang:alpine
 
+# Terraform version
+ARG TERRAFORM_VERSION=1.9.2
+
 # Install necessary dependencies
 RUN apk update && apk add --no-cache \
     bash \
@@ -8,7 +11,7 @@ RUN apk update && apk add --no-cache \
     unzip
 
 # Install Terraform
-RUN curl -fsSL https://releases.hashicorp.com/terraform/1.9.2/terraform_1.9.2_linux_amd64.zip -o terraform.zip && \
+RUN curl -fsSL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip -o terraform.zip && \
     unzip terraform.zip && \
     mv terraform /usr/local/bin/ && \
     rm terraform.zip

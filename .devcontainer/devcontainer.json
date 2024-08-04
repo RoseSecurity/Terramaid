@@ -1,0 +1,45 @@
+{
+  "name": "Terramaid Demo",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "."
+  },
+  "hostRequirements": {
+    "cpus": 8,
+    "memory": "16gb",
+    "storage": "32gb"
+  },
+  "features": {
+  },
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+  "customizations": {
+    "codespaces": {
+      "openFiles": [
+        "docs/Getting_Started.md"
+      ]
+    },
+    "vscode": {
+      "extensions": [
+        "bierner.github-markdown-preview",
+        "tomasdahlqvist.markdown-admonitions",
+        "HashiCorp.terraform",
+        "EditorConfig.EditorConfig"
+      ],
+      "settings": {
+        "git.openRepositoryInParentFolders": "always",
+        "git.autofetch": true,
+        "git.showProgress": true,
+        "workbench.startupEditor": "readme",
+        "workbench.editorAssociations": {
+          "*.md": "vscode.markdown.preview.editor"
+        },
+        "terminal.integrated.tabs.title": "Terramaid (${process})",
+        "terminal.integrated.tabs.description": "${task}${separator}${local}${separator}${cwdFolder}",
+        "terminal.integrated.shell.linux": "/bin/zsh",
+        "terminal.integrated.allowWorkspaceConfiguration": true,
+        "terminal.integrated.commandsToSkipShell": []
+      }
+    }
+  }
+}
