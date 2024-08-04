@@ -5,9 +5,11 @@ ARG TERRAFORM_VERSION=1.9.2
 # Install Terramaid
 RUN go install github.com/RoseSecurity/terramaid@latest
 
+FROM mcr.microsoft.com/vscode/devcontainers/base:debian
+
 # Install required packages
 RUN apt-get update && \
-    apt-get install -y zsh-autosuggestions 
+    apt-get install -y apt-utils ca-certificates curl unzip zsh-autosuggestions 
 
 # Change shell to zsh
 RUN chsh -s /bin/zsh vscode
