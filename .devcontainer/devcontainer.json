@@ -27,9 +27,6 @@
         "git.autofetch": true,
         "git.showProgress": true,
         "workbench.startupEditor": "readme",
-        "workbench.editor.autoLockGroups": {
-          "readme": "/Getting_Started.md"
-        },
         "workbench.editorAssociations": {
           "*.md": "vscode.markdown.preview.editor"
         },
