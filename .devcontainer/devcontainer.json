@@ -9,7 +9,7 @@
     "memory": "16gb",
     "storage": "32gb"
   },
-  "postCreateCommand": "/workspace/Terramaid/.devcontainer/post_create.sh",
+  "postCreateCommand": "/workspace/.devcontainer/post_create.sh",
   "features": {
   },
   "workspaceFolder": "/workspace",
@@ -17,7 +17,7 @@
   "customizations": {
     "codespaces": {
       "openFiles": [
-        "/workspace/Terramaid/docs/Getting_Started.md"
+        "/workspace/docs/Getting_Started.md"
       ]
     },
     "vscode": {
