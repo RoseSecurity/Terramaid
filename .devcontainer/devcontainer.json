@@ -1,39 +1,56 @@
 {
-  "name": "Terramaid Demo",
-  "security.workspace.trust.emptyWindow": true,
-  "security.workspace.trust.untrustedFiles": "prompt",
-  "build": {
-    "dockerfile": "Dockerfile",
-    "context": "."
-  },
-  "hostRequirements": {
-    "cpus": 8,
-    "memory": "16gb",
-    "storage": "32gb"
-  },
-  "workspaceFolder": "Terramaid",
-  "postCreateCommand": "/workspaces/Terramaid/.devcontainer/post_create.sh",
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "bierner.github-markdown-preview",
-        "tomasdahlqvist.markdown-admonitions",
-        "HashiCorp.terraform",
-        "EditorConfig.EditorConfig"
-      ],
-      "settings": {
-        "git.openRepositoryInParentFolders": "always",
-        "git.autofetch": true,
-        "git.showProgress": true,
-        "workbench.editorAssociations": {
-          "*.md": "vscode.markdown.preview.editor"
-        },
-        "terminal.integrated.tabs.title": "Terramaid (${process})",
-        "terminal.integrated.tabs.description": "${task}${separator}${local}${separator}${cwdFolder}",
-        "terminal.integrated.shell.linux": "/bin/zsh",
-        "terminal.integrated.allowWorkspaceConfiguration": true,
-        "terminal.integrated.commandsToSkipShell": []
+    "name": "Terramaid Demo",
+    "security.workspace.trust.emptyWindow": true,
+    "security.workspace.trust.untrustedFiles": "prompt",
+    "security.workspace.trust.domain": {
+        "*.github.com": true,
+        "*.app.github.dev": true,
+        "localhost": true
+    },
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": "."
+    },
+    "hostRequirements": {
+        "cpus": 8,
+        "memory": "16gb",
+        "storage": "32gb"
+     },
+    "postCreateCommand": "/workspace/.devcontainer/post_create.sh",
+    "features": {
+        /*"ghcr.io/devcontainers/features/go:1": {
+            "version": "1.22"
+        },*/
+    },
+    "workspaceFolder": "/workspace/test",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+
+    "customizations": {
+      "vscode": {
+        "extensions": [
+          "bierner.github-markdown-preview",
+          "tomasdahlqvist.markdown-admonitions",
+          "HashiCorp.terraform",
+          "EditorConfig.EditorConfig"
+        ],
+        "settings": {
+            "git.openRepositoryInParentFolders": "always",
+            "git.autofetch": true,
+            "git.showProgress": true,
+            "workbench.startupEditor": "readme",
+            "workbench.editor.autoLockGroups": {
+              "readme": "/Getting_Started.md"
+            },
+            "workbench.editorAssociations": {
+                "*.md": "vscode.markdown.preview.editor"
+            },
+            "terminal.integrated.tabs.title": "Terramaid (${process})",
+            "terminal.integrated.tabs.description": "${task}${separator}${local}${separator}${cwdFolder}",
+            "terminal.integrated.shell.linux": "/bin/zsh",
+            "terminal.integrated.allowWorkspaceConfiguration": true,
+            "terminal.integrated.commandsToSkipShell": [],
+             }
+          }
       }
     }
   }
-}
