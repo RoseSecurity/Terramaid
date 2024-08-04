@@ -3,7 +3,7 @@ FROM golang:1.22 AS terramaid
 ARG TERRAFORM_VERSION=1.9.2
 
 # Install Terramaid
-go install github.com/RoseSecurity/terramaid@latest
+RUN go install github.com/RoseSecurity/terramaid@latest
 
 # Install required packages
 RUN apt-get update && \
