@@ -23,7 +23,9 @@ RUN curl -fsSL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/ter
 # Install the starship prompt
 RUN curl -sS https://starship.rs/install.sh | sh -s -- -y
 
+# Copy Terramaid binary from the build stage
+COPY --from=build /go/bin/terramaid /usr/local/bin/terramaid
+
 # Install the rootfs/ configurations
 COPY rootfs/ /
-
 
