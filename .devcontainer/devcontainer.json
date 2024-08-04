@@ -12,9 +12,14 @@
   "postCreateCommand": "/workspace/Terramaid/.devcontainer/post_create.sh",
   "features": {
   },
-  "workspaceFolder": "/workspace",
+  "workspaceFolder": "/workspace/Terramaid",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
   "customizations": {
+    "codespaces": {
+      "openFiles": [
+        "/workspace/Terramaid/docs/Getting_Started.md"
+      ]
+    },
     "vscode": {
       "extensions": [
         "bierner.github-markdown-preview",
