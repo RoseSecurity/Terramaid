@@ -15,7 +15,7 @@ type Release struct {
 	TagName string `json:"tag_name"`
 }
 
-func versionCmd() *cobra.Command {
+func versionCmd(Version string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "version",
 		Short:   "Print the CLI version",
