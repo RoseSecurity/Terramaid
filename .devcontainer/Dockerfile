@@ -1,13 +1,16 @@
-FROM golang:alpine
+FROM golang:1.22
 
 ARG TERRAFORM_VERSION=1.9.2
 
-# Install necessary dependencies
-RUN apk update && apk add --no-cache \
-    bash \
-    curl \
-    git \
-    unzip
+# Install Terramaid
+go install github.com/RoseSecurity/terramaid@latest
+
+# Install required packages
+RUN apt-get update && \
+    apt-get install -y zsh-autosuggestions zsh
+
+# Change shell to zsh
+RUN chsh -s /bin/zsh
 
 # Install Terraform
 RUN curl -fsSL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip -o terraform.zip && \
@@ -21,10 +24,3 @@ RUN curl -sS https://starship.rs/install.sh | sh -s -- -y
 # Install the rootfs/ configurations
 COPY rootfs/ /
 
-# Copy the source code and build
-COPY . .
-RUN go mod download && go mod verify
-RUN go build -v -o /usr/local/bin/terramaid main.go
-
-# Set the entrypoint and default command
-ENTRYPOINT ["test"]
