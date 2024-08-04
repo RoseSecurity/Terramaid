@@ -1,4 +1,4 @@
-FROM golang:1.22 AS terramaid
+FROM golang:1.22 AS build
 
 ARG TERRAFORM_VERSION=1.9.2
 
