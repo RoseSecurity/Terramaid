@@ -9,7 +9,6 @@
     "memory": "16gb",
     "storage": "32gb"
   },
-  "postCreateCommand": "/workspace/.devcontainer/post_create.sh",
   "features": {
   },
   "workspaceFolder": "/workspace",
