@@ -12,7 +12,7 @@
   "postCreateCommand": "/workspace/Terramaid/.devcontainer/post_create.sh",
   "features": {
   },
-  "workspaceFolder": "/workspace/Terramaid",
+  "workspaceFolder": "/workspace",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
   "customizations": {
     "codespaces": {
