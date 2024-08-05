@@ -1,16 +1,39 @@
-# Getting Started
+# Terramaid
 
-This is a guide to help you get started with Terramaid! In this directory, you will find a few Terraform files that can be visualized using Terramaid. To kick the tires, try running the following commands:
+![png](./img/Terramaid.png)
 
-```sh
-cd test && terramaid -h
+
+<p align="center">
+  <em>A utility for creating Mermaid diagrams from Terraform configurations</em>
+</p>
+
+## Introduction
+
+Terramaid transforms your Terraform resources and plans into visually appealing Mermaid diagrams. By converting complex infrastructure into easy-to-understand diagrams, Terramaid enhances documentation, simplifies review processes, and fosters better collaboration among team members. Whether you're looking to enrich your project's documentation, streamline reviews, or just bring a new level of clarity to your Terraform configurations, Terramaid is the perfect utility to integrate into your development workflow.
+
+## Demo
+
+![gif](./img/terramaid_vhs_demo.gif)
+
+### Output
+
+```mermaid
+flowchart TD
+ subgraph Hashicorp
+ subgraph Terraform
+  aws_db_instance.example_db["aws_db_instance.example_db"]
+  aws_instance.example_instance["aws_instance.example_instance"]
+  aws_s3_bucket.logs["aws_s3_bucket.logs"]
+  aws_s3_bucket.test["aws_s3_bucket.test"]
+  aws_s3_bucket_policy.logs_policy["aws_s3_bucket_policy.logs_policy"]
+  aws_s3_bucket_policy.test_policy["aws_s3_bucket_policy.test_policy"]
+  aws_s3_bucket_policy.logs_policy --> aws_s3_bucket.logs
+  aws_s3_bucket_policy.test_policy --> aws_s3_bucket.test
+ end
+ end
 ```
 
-```sh
-terramaid --subgraph-name Demo --direction LR --output Terramaid_Demo.md
-```
+!!! tip
+    You can try out `terramaid` directly in your browser using GitHub Codespaces
 
-```sh
-cat Terramaid_Demo.md
-```
-
+    [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=rosesecurity/terramaid&skip_quickstart=true)

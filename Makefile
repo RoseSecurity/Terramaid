@@ -27,5 +27,9 @@ run: build ## Run Terramaid
 
 docs: build ## Generate documentation
 	./build/$(BINARY_NAME) docs
+	find ./docs -name '*.md' -print0 | xargs -0 sed -i 's/```terrmaid/```go/g'
 
-.PHONY: all build install clean run fmt help
+mkdocs: ## render mkdcos locally
+	mkdocs serve
+
+.PHONY: all build install clean run fmt help mkdocs
