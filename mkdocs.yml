@@ -1,0 +1,92 @@
+site_name: Terramaid
+site_description: "A utility for generating Mermaid diagrams from Terraform configurations"
+site_author: RoseSecurity
+
+repo_name: RoseSecurity/Terramaid
+repo_url: https://github.com/RoseSecurity/Terramaid
+
+docs_dir: docs/
+
+nav:
+  - Getting_Started.md
+  - Installation.md
+  - CI/CD Integrations:
+    - GitHub Actions: GitHub_Actions_Integration.md
+    - GitLab CI: GitLab_Pipelines_Integration.md
+  - CLI Reference:
+    - cmd/terramaid.md
+    - cmd/terramaid_version.md
+    - cmd/terramaid_completion_bash.md
+    - cmd/terramaid_completion_fish.md
+    - cmd/terramaid_completion_zsh.md
+    - cmd/terramaid_completion_powershell.md
+
+plugins:
+  - search
+  - git-authors
+  - git-revision-date-localized:
+      locale: en
+      enable_creation_date: false
+    
+markdown_extensions:
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.snippets
+  - pymdownx.inlinehilite
+  - admonition
+  - def_list
+  - footnotes
+  - attr_list
+  - md_in_html
+  - tables
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - footnotes
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: true
+
+theme:
+  icon:
+    edit: material/pencil
+    view: material/eye
+    repo: fontawesome/brands/github
+  name: material
+  
+  favicon: img/Terramaid.png
+  logo: img/Terramaid.png
+  language: en
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      primary: blue
+      accent: indigo
+      toggle:
+        icon: material/eye
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: blue
+      accent: indigo
+      toggle:
+        icon: material/eye-outline
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.indexes
+    - content.code.copy
+    - content.action.edit
+    - navigation.top
+    - navigation.expand
+    - navigation.footer

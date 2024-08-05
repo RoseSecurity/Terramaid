@@ -1,6 +1,6 @@
 # GitLab Pipeline Integration
 
-1. Create a GitLab Project Access Token with API access
+## Create a GitLab Project Access Token with API access
 
 > [!NOTE]
 > Enter a relevant Token name
@@ -8,16 +8,13 @@
 > Select a Role (Reporter is probably the most relevant)
 > Select the API checkbox
 
-<p align="left">
-<img width=70% height=70% src="./img/GitLab_CI_Token_Creation.png">
-</p>
-1. Add the Access Token to GitLab's CI/CD variables or your vault provider
+![png](img/GitLab_CI_Token_Creation.png)
 
-<p align="left">
-<img width=70% height=70% src="./img/GitLab_CI_Token.png">
-</p>
+## Add the Access Token to GitLab's CI/CD variables or your vault provider
 
-2. Add the following stage to your pipelines:
+![png](img/GitLab_CI_Token.png)
+
+## Add the following stage to your pipelines:
 
 ```yaml
 terramaid:
@@ -48,8 +45,6 @@ terramaid:
       --data "{\"body\": $escaped_content}"
 ```
 
-3. Utilize the pipeline and observe the output
+## Utilize the pipeline and observe the output
 
-<p align="left">
-<img width=70% height=70% src="./img/Terramaid_GitLab_Output.png">
-</p>
+![png](img/Terramaid_GitLab_Output.png)
