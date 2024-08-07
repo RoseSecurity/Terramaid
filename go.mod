@@ -4,10 +4,11 @@ go 1.22.2
 
 require (
 	github.com/awalterschulze/gographviz v2.0.3+incompatible
-	github.com/caarlos0/env/v11 v11.1.0
+	github.com/caarlos0/env/v11 v11.2.2
 	github.com/fatih/color v1.17.0
 	github.com/hashicorp/terraform-exec v0.21.0
 	github.com/spf13/cobra v1.8.1
+	golang.org/x/text v0.16.0
 )
 
 require (
@@ -22,6 +23,5 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/zclconf/go-cty v1.14.4 // indirect
 	golang.org/x/sys v0.18.0 // indirect
-	golang.org/x/text v0.16.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
