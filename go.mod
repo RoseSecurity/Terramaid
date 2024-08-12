@@ -8,7 +8,7 @@ require (
 	github.com/fatih/color v1.17.0
 	github.com/hashicorp/terraform-exec v0.21.0
 	github.com/spf13/cobra v1.8.1
-	golang.org/x/text v0.16.0
+	golang.org/x/text v0.17.0
 )
 
 require (
