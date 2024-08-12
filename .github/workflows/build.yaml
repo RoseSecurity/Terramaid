@@ -1,4 +1,4 @@
-name: "Build CLI and attach to GitHub release"
+name: "Build CLI and Attach to GitHub Release"
 
 on:
   release:
@@ -60,6 +60,10 @@ jobs:
           push: true
           tags: rosesecurity/terramaid:latest
 
+      - name: "Verify Image"
+        run: |
+            docker pull ${{ steps.build.outputs.image }}:${{ steps.build.outputs.tag}}
+
   homebrew:
     name: "Bump Homebrew Formula"
     runs-on: ubuntu-latest
@@ -72,4 +76,3 @@ jobs:
           formula-path: Formula/t/terramaid.rb
         env:
           COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
-

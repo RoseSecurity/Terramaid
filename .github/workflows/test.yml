@@ -1,4 +1,4 @@
-name: Test
+name: "Test Terramaid Outputs"
 
 on:
   pull_request:
@@ -7,16 +7,42 @@ on:
       - main
 
 jobs:
-  test:
+  test_aws:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.22.2'
+          go-version: "1.22.2"
           cache: false
       - run: |
           make build
-          build/terramaid -w test/
+          build/terramaid -w test/aws
+          cat Terramaid.md
+  test_gcp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22.2"
+          cache: false
+      - run: |
+          make build
+          build/terramaid -w test/gcp
+          cat Terramaid.md
+  test_az:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22.2"
+          cache: false
+      - run: |
+          make build
+          build/terramaid -w test/az
           cat Terramaid.md
