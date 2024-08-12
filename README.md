@@ -22,18 +22,39 @@ Terramaid transforms your Terraform resources and plans into visually appealing 
 
 ```mermaid
 flowchart TD
- subgraph Hashicorp
- subgraph Terraform
-  aws_db_instance.example_db["aws_db_instance.example_db"]
-  aws_instance.example_instance["aws_instance.example_instance"]
-  aws_s3_bucket.logs["aws_s3_bucket.logs"]
-  aws_s3_bucket.test["aws_s3_bucket.test"]
-  aws_s3_bucket_policy.logs_policy["aws_s3_bucket_policy.logs_policy"]
-  aws_s3_bucket_policy.test_policy["aws_s3_bucket_policy.test_policy"]
-  aws_s3_bucket_policy.logs_policy --> aws_s3_bucket.logs
-  aws_s3_bucket_policy.test_policy --> aws_s3_bucket.test
- end
- end
+	subgraph Terraform
+		subgraph Aws
+			aws_db_instance.main_db["aws_db_instance.main_db"]
+			aws_instance.app_server["aws_instance.app_server"]
+			aws_instance.web_server["aws_instance.web_server"]
+			aws_lb.web["aws_lb.web"]
+			aws_lb_listener.web["aws_lb_listener.web"]
+			aws_lb_target_group.web["aws_lb_target_group.web"]
+			aws_lb_target_group_attachment.web["aws_lb_target_group_attachment.web"]
+			aws_s3_bucket.logs["aws_s3_bucket.logs"]
+			aws_s3_bucket.test["aws_s3_bucket.test"]
+			aws_s3_bucket_policy.logs_policy["aws_s3_bucket_policy.logs_policy"]
+			aws_s3_bucket_policy.test_policy["aws_s3_bucket_policy.test_policy"]
+			aws_security_group.db["aws_security_group.db"]
+			aws_security_group.web["aws_security_group.web"]
+			aws_subnet.private["aws_subnet.private"]
+			aws_subnet.public["aws_subnet.public"]
+			aws_vpc.main["aws_vpc.main"]
+		end
+		aws_lb.web --> aws_security_group.web
+		aws_lb.web --> aws_subnet.public
+		aws_lb_listener.web --> aws_lb.web
+		aws_lb_listener.web --> aws_lb_target_group.web
+		aws_lb_target_group.web --> aws_vpc.main
+		aws_lb_target_group_attachment.web --> aws_instance.web_server
+		aws_lb_target_group_attachment.web --> aws_lb_target_group.web
+		aws_s3_bucket_policy.logs_policy --> aws_s3_bucket.logs
+		aws_s3_bucket_policy.test_policy --> aws_s3_bucket.test
+		aws_security_group.db --> aws_security_group.web
+		aws_security_group.web --> aws_vpc.main
+		aws_subnet.private --> aws_vpc.main
+		aws_subnet.public --> aws_vpc.main
+	end
 ```
 
 > [!TIP]
