@@ -1,4 +1,4 @@
-name: "Build CLI and attach to GitHub release"
+name: "Build CLI and Attach to GitHub Release"
 
 on:
   release:
@@ -72,4 +72,3 @@ jobs:
           formula-path: Formula/t/terramaid.rb
         env:
           COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
-
