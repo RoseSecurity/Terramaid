@@ -57,3 +57,6 @@ go.work
 Terramaid.md
 
 dist/
+
+# Website
+**/node_modules
