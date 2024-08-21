@@ -1,4 +1,4 @@
-FROM golang:1.22 AS build
+FROM golang:1.23 AS build
 
 # Install Terramaid
 RUN go install github.com/RoseSecurity/terramaid@latest
