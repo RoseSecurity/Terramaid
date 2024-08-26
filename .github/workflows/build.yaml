@@ -60,10 +60,6 @@ jobs:
           push: true
           tags: rosesecurity/terramaid:latest
 
-      - name: "Verify Image"
-        run: |
-            docker pull ${{ steps.build.outputs.image }}:${{ steps.build.outputs.tag}}
-
   homebrew:
     name: "Bump Homebrew Formula"
     runs-on: ubuntu-latest
