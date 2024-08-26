@@ -13,7 +13,7 @@ fmt: ## Format Go files
 	gofumpt -w .
 
 build: ## Build Terramaid
-	env $(if $(GOOS),GOOS=$(GOOS)) $(if $(GOARCH),GOARCH=$(GOARCH)) $(GO) build -o build/$(BINARY_NAME) -ldflags "-X 'github.com/rosesecurity/Terramaid/cmd.Version=${VERSION}'" main.go
+	env $(if $(GOOS),GOOS=$(GOOS)) $(if $(GOARCH),GOARCH=$(GOARCH)) $(GO) build -o build/$(BINARY_NAME) -ldflags "-X 'github.com/RoseSecurity/terramaid/cmd.Version=${VERSION}'" main.go
 
 install: ## Install dependencies
 	$(GO) install ./...@latest
