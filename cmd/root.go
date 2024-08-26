@@ -35,7 +35,7 @@ func TerramaidCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:           "terramaid",
-		Short:         "A utility for generating Mermaid diagrams from Terraform",
+		Short:         "A utility for generating Mermaid diagrams from Terraform configurations",
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
@@ -66,6 +66,7 @@ func TerramaidCmd() *cobra.Command {
 
 			return nil
 		},
+
 		RunE: func(cmd *cobra.Command, args []string) error {
 			graph, err := internal.ParseTerraform(options.WorkingDir, options.TFBinary, options.TFPlan)
 			if err != nil {
@@ -74,6 +75,7 @@ func TerramaidCmd() *cobra.Command {
 
 			// Convert the graph to a Mermaid diagram
 			var mermaidDiagram string
+
 			switch options.ChartType {
 			case "flowchart":
 				mermaidDiagram, err = internal.ConvertToMermaidFlowchart(graph, options.Direction, options.SubgraphName)
@@ -105,6 +107,9 @@ func TerramaidCmd() *cobra.Command {
 	cmd.Flags().StringVarP(&options.WorkingDir, "working-dir", "w", options.WorkingDir, "Working directory for Terraform (env: TERRAMAID_WORKING_DIR)")
 
 	cmd.AddCommand(docsCmd(), versionCmd(Version))
+
+	// Disable auto generated string from documentation so that documentation is cleanly built and updated
+	cmd.DisableAutoGenTag = true
 
 	return cmd
 }

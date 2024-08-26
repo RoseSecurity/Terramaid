@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/cobra/doc"
 )
 
+// Generate documentation for Terramaid commands and output to docs directory
 func docsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:          "docs",
