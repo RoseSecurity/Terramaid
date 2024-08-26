@@ -58,6 +58,7 @@ func latestRelease() (string, error) {
 	return release.TagName, nil
 }
 
+// Display out of date warning
 func updateTerramaid(latestVersion string) {
 	c1 := color.New(color.FgCyan)
 
