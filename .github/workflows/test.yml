@@ -14,7 +14,7 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.22.2"
+          go-version-file: "go.mod"
           cache: false
       - run: |
           make build
@@ -27,7 +27,7 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.22.2"
+          go-version-file: "go.mod"
           cache: false
       - run: |
           make build
@@ -40,7 +40,7 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.22.2"
+          go-version-file: "go.mod"
           cache: false
       - run: |
           make build
