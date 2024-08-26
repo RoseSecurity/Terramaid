@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var Version = "0.0.1"
+var Version string
 
 type options struct {
 	WorkingDir   string `env:"WORKING_DIR" envDefault:"."`

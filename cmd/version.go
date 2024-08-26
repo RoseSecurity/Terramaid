@@ -37,6 +37,7 @@ func versionCmd(Version string) *cobra.Command {
 	return cmd
 }
 
+// Fetch latest release for comparison to current version
 func latestRelease() (string, error) {
 	resp, err := http.Get("https://api.github.com/repos/RoseSecurity/terramaid/releases/latest")
 	if err != nil {
