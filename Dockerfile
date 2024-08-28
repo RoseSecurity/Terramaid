@@ -1,5 +1,5 @@
-FROM golang:alpine
-
+FROM golang:alpine AS builder
+WORKDIR /usr/src/terramaid
 # Terraform version
 ARG TERRAFORM_VERSION=1.9.2
 
@@ -11,18 +11,27 @@ RUN apk update && apk add --no-cache \
     unzip
 
 # Install Terraform
-RUN curl -fsSL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip -o terraform.zip && \
-    unzip terraform.zip && \
-    mv terraform /usr/local/bin/ && \
-    rm terraform.zip
-
-# Set the working directory for Terramaid
-WORKDIR /usr/src/terramaid
+RUN <<EOF
+    curl -fsSL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip -o terraform.zip
+    unzip terraform.zip
+EOF
 
 # Copy the source code and build
 COPY . .
-RUN go mod download && go mod verify
-RUN go build -v -o /usr/local/bin/terramaid main.go
+RUN <<EOF
+    go mod download && go mod verify
+    go build -v -o ./terramaid main.go
+EOF
+
+FROM alpine:3.20.2
+COPY --from=builder /usr/src/terramaid/terraform /usr/local/bin/terraform
+COPY --from=builder /usr/src/terramaid/terramaid /usr/local/bin/terramaid
+
+RUN apk update && apk add --no-cache git
+USER nobody
+
+#Set the working directory for Terramaid
+WORKDIR /usr/src/terramaid
 
 # Set the entrypoint and default command
 ENTRYPOINT ["/usr/local/bin/terramaid"]
