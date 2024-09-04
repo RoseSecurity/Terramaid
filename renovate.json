@@ -13,7 +13,7 @@
     },
     {
       "description": "Update Homebrew Dependencies",
-      "managers": ["brew"],
+      "managers": ["homebrew"],
       "schedule": ["at any time"]
     }
   ]
