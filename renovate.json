@@ -1,0 +1,21 @@
+{
+  "extends": ["config:base"],
+  "packageRules": [
+    {
+      "description": "Update Go Dependencies",
+      "managers": ["gomod"],
+      "schedule": ["at any time"]
+    },
+    {
+      "description": "Update Docker Dependencies",
+      "managers": ["dockerfile"],
+      "schedule": ["at any time"]
+    },
+    {
+      "description": "Update Homebrew Dependencies",
+      "managers": ["brew"],
+      "schedule": ["at any time"]
+    }
+  ]
+}
+
