@@ -91,7 +91,7 @@ curl -1sLf \
 Once the repository is configured, you can install with:
 
 ```sh
-apt install terramaid
+apt install terramaid=<VERSION>
 ```
 
 ### Source
