@@ -88,7 +88,7 @@ curl -1sLf \
   | sudo -E bash
 ```
 
-Once the repository is consigured, you can install with:
+Once the repository is configured, you can install with:
 
 ```sh
 apt install terramaid
