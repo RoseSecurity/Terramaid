@@ -66,19 +66,35 @@ flowchart TD
 
 ## Installation
 
-Homebrew installation:
+### Homebrew
 
 ```sh
 brew install terramaid
 ```
 
-If you have a functional go environment, you can install with:
+If you have a functional Go environment, you can install with:
 
 ```sh
 go install github.com/RoseSecurity/terramaid@latest
 ```
 
-Build from source:
+### Apt
+
+To install packages, you can quickly setup the repository automatically:
+
+```sh
+curl -1sLf \
+  'https://dl.cloudsmith.io/public/rosesecurity/terramaid/setup.deb.sh' \
+  | sudo -E bash
+```
+
+Once the repository is configured, you can install with:
+
+```sh
+apt install terramaid
+```
+
+### Source
 
 ```sh
 git clone git@github.com:RoseSecurity/terramaid.git
