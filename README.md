@@ -148,3 +148,23 @@ docker run -it -v $(pwd):/usr/src/terramaid rosesecurity/terramaid:latest
 ## CI/CD Integrations
 
 Terramaid is designed to easily integrate with existing pipelines and workflows. For more information on sample GitHub Actions and GitLab CI/CD Pipelines, feel free to check out [GitHub Actions Integrations](./docs/GitHub_Actions_Integration.md) and [Gitlab Pipelines Integrations](./docs/GitLab_Pipelines_Integration.md).
+
+## Contributing
+
+For bug reports & feature requests, please use the [issue tracker](https://github.com/rosesecurity/terramaid/issues).
+
+PRs are welcome! We follow the typical "fork-and-pull" Git workflow.
+ 1. **Fork** the repo on GitHub
+ 2. **Clone** the project to your own machine
+ 3. **Commit** changes to your own branch
+ 4. **Push** your work back up to your fork
+ 5. Submit a **Pull Request** so that we can review your changes
+
+> [!TIP]
+> Be sure to merge the latest changes from "upstream" before making a pull request!
+
+### Many Thanks to Our Contributors
+
+<a href="https://github.com/rosesecurity/terramaid/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=rosesecurity/terramaid&max=24" />
+</a>
