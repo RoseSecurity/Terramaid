@@ -43,8 +43,14 @@ func TerramaidCmd() *cobra.Command {
 				return fmt.Errorf("Terraform directory \"%s\" does not exist", options.TFDir)
 			}
 
-			if options.TFDir != "" && !utils.TerraformFilesExist(options.TFDir) {
-				return fmt.Errorf("Terraform files do not exist in directory \"%s\"", options.TFDir)
+			if options.TFDir != "" {
+				exists, err := utils.TerraformFilesExist(options.TFDir)
+				if err != nil {
+					return fmt.Errorf("error checking Terraform files in directory \"%s\": %v", options.TFDir, err)
+				}
+				if !exists {
+					return fmt.Errorf("Terraform files do not exist in directory \"%s\"", options.TFDir)
+				}
 			}
 
 			if options.WorkingDir != "" && !utils.DirExists(options.WorkingDir) {
@@ -68,6 +74,8 @@ func TerramaidCmd() *cobra.Command {
 		},
 
 		RunE: func(cmd *cobra.Command, args []string) error {
+			sp := utils.NewSpinner("Generating Terramaid Diagrams")
+			sp.Start()
 			graph, err := internal.ParseTerraform(options.WorkingDir, options.TFBinary, options.TFPlan)
 			if err != nil {
 				return fmt.Errorf("error parsing Terraform: %w", err)
@@ -91,6 +99,7 @@ func TerramaidCmd() *cobra.Command {
 				return fmt.Errorf("error writing to file: %w", err)
 			}
 
+			sp.Stop()
 			fmt.Printf("Mermaid diagram successfully written to %s\n", options.Output)
 
 			return nil
