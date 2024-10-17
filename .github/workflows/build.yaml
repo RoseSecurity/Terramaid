@@ -37,6 +37,39 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
+      - name: Get Debian Package Names
+        id: deb_package
+        run: |
+          echo "ARM_PACKAGE=$(find dist/ -name '*arm64.deb' | head -n 1)" >> $GITHUB_ENV
+          echo "AMD_PACKAGE=$(find dist/ -name '*amd64.deb' | head -n 1)" >> $GITHUB_ENV
+
+      # Push the Debian package to Cloudsmith
+      - name: Push Debian ARM package to Cloudsmith
+        id: push_arm
+        uses: cloudsmith-io/action@master
+        with:
+          api-key: ${{ secrets.CLOUDSMITH_API_KEY }}
+          command: "push"
+          format: "deb"
+          owner: "rosesecurity"
+          repo: "terramaid"
+          distro: "any-distro"
+          release: "any-version"
+          file: ${{ env.ARM_PACKAGE }}
+
+      - name: Push Debian AMD package to Cloudsmith
+        id: push_amd
+        uses: cloudsmith-io/action@master
+        with:
+          api-key: ${{ secrets.CLOUDSMITH_API_KEY }}
+          command: "push"
+          format: "deb"
+          owner: "rosesecurity"
+          repo: "terramaid"
+          distro: "any-distro"
+          release: "any-version"
+          file: ${{ env.AMD_PACKAGE }}
+
   docker:
     name: "Build and Push Docker Image"
     runs-on: ubuntu-latest
