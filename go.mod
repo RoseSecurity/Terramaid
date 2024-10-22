@@ -6,7 +6,7 @@ require (
 	github.com/awalterschulze/gographviz v2.0.3+incompatible
 	github.com/briandowns/spinner v1.23.1
 	github.com/caarlos0/env/v11 v11.2.2
-	github.com/fatih/color v1.17.0
+	github.com/fatih/color v1.18.0
 	github.com/hashicorp/terraform-exec v0.21.0
 	github.com/mattn/go-colorable v0.1.13
 	github.com/spf13/cobra v1.8.1
@@ -23,7 +23,7 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/zclconf/go-cty v1.14.4 // indirect
-	golang.org/x/sys v0.18.0 // indirect
+	golang.org/x/sys v0.25.0 // indirect
 	golang.org/x/term v0.1.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
