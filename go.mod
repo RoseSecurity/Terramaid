@@ -10,7 +10,7 @@ require (
 	github.com/hashicorp/terraform-exec v0.21.0
 	github.com/mattn/go-colorable v0.1.13
 	github.com/spf13/cobra v1.8.1
-	golang.org/x/text v0.19.0
+	golang.org/x/text v0.20.0
 )
 
 require (
