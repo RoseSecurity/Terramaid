@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 
 	tuiUtils "github.com/RoseSecurity/terramaid/internal/tui/utils"
 	u "github.com/RoseSecurity/terramaid/pkg/utils"
@@ -37,6 +36,6 @@ func init() {
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		log.Fatalf("error executing command: %v", err)
+		u.LogErrorAndExit(err)
 	}
 }
