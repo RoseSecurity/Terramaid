@@ -28,7 +28,7 @@ type Graph struct {
 	NodeMap map[string]int
 }
 
-var labelCleaner = regexp.MustCompile(`\s*\(expand\)|\s*\(close\)|\[root\]\s*|"`)
+var labelCleaner = regexp.MustCompile(`\s*\(expand\)|\s*\(close\)|\[root\]\s*|"|[\\/]`)
 
 // CleanLabel removes unnecessary parts from the label
 func CleanLabel(label string) string {
@@ -45,7 +45,11 @@ func ExtractProvider(label string) string {
 	parts := strings.Split(label, "_")
 	if len(parts) > 0 {
 		// Remove quotes from the provider name
-		return strings.ReplaceAll(parts[0], "\"", "")
+		provider := strings.ReplaceAll(parts[0], "\"", "")
+		// Replace backslashes and forward slashes with underscores for Mermaid compatibility
+		provider = strings.ReplaceAll(provider, "\\", "_")
+		provider = strings.ReplaceAll(provider, "/", "_")
+		return provider
 	}
 	return ""
 }

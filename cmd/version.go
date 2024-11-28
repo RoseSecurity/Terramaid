@@ -9,37 +9,37 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
+	"golang.org/x/mod/semver"
 )
+
+// Placeholder for builds
+var Version = "1.0.0"
 
 type Release struct {
 	TagName string `json:"tag_name"`
 }
 
-func versionCmd(Version string) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:     "version",
-		Short:   "Print the CLI version",
-		Long:    `This command prints the CLI version`,
-		Example: "terramaid version",
-		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("terramaid: " + Version)
-			latestReleaseTag, err := latestRelease()
-			if err == nil && latestReleaseTag != "" {
-				latestRelease := strings.TrimPrefix(latestReleaseTag, "v")
-				currentRelease := strings.TrimPrefix(Version, "v")
-				if latestRelease != currentRelease {
-					updateTerramaid(latestRelease)
-				}
+var versionCmd = &cobra.Command{
+	Use:     "version",
+	Short:   "Print the CLI version",
+	Long:    `This command prints the CLI version`,
+	Example: "terramaid version",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("terramaid: " + Version)
+		latestReleaseTag, err := latestRelease()
+		if err == nil && latestReleaseTag != "" {
+			latestRelease := strings.TrimPrefix(latestReleaseTag, "v")
+			currentRelease := strings.TrimPrefix(Version, "v")
+			if semver.Compare(latestRelease, currentRelease) > 0 {
+				updateTerramaid(latestRelease)
 			}
-		},
-	}
-
-	return cmd
+		}
+	},
 }
 
 // Fetch latest release for comparison to current version
 func latestRelease() (string, error) {
-	resp, err := http.Get("https://api.github.com/repos/RoseSecurity/terramaid/releases/latest")
+	resp, err := http.Get("https://api.github.com/repos/RoseSecurity/Terramaid/releases/latest")
 	if err != nil {
 		return "", fmt.Errorf("failed to fetch version: %w", err)
 	}
