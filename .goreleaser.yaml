@@ -10,11 +10,27 @@ builds:
   - env:
       - CGO_ENABLED=0
     ldflags:
-      - '-s -w -X "github.com/rosesecurity/Terramaid/cmd.Version={{.Version}}"'
+      - '-s -w -X "github.com/RoseSecurity/terramaid/cmd.Version={{.Version}}"'
     goos:
       - linux
       - windows
       - darwin
+
+nfpms:
+  - id: deb
+    formats:
+      - deb
+    file_name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Arch }}"
+    maintainer: RoseSecurity <rosesecurityresearch@proton.me>
+    description: |-
+      A utility for generating Mermaid diagrams from Terraform configurations
+    dependencies:
+      - bash
+    contents:
+      - src: ./dist/{{ .ProjectName }}_{{ .Version }}_{{ .Arch }}.deb
+        dst: /usr/local/bin/{{ .ProjectName }}
+    homepage: "https://github.com/RoseSecurity/Terramaid"
+    license: Apache 2.0
 
 archives:
   - format: tar.gz
