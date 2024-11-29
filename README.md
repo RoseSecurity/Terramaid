@@ -113,26 +113,20 @@ The following configuration options are available:
 
 ```sh
 > terramaid run -h
-A utility for generating Mermaid diagrams from Terraform
+Generate Mermaid diagrams from Terraform configurations
 
 Usage:
-  terramaid [flags]
-  terramaid [command]
-
-Available Commands:
-  completion  Generate the autocompletion script for the specified shell
-  help        Help about any command
-  version     Print the CLI version
+  terramaid run [flags]
 
 Flags:
-  -r, --direction string       Specify the direction of the flowchart (env: TERRAMAID_DIRECTION) (default "TD")
-  -h, --help                   help for terramaid
+  -c, --chart-type string      Specify the type of Mermaid chart to generate (env: TERRAMAID_CHART_TYPE) (default "flowchart")
+  -r, --direction string       Specify the direction of the diagram (env: TERRAMAID_DIRECTION) (default "TD")
+  -h, --help                   help for run
   -o, --output string          Output file for Mermaid diagram (env: TERRAMAID_OUTPUT) (default "Terramaid.md")
-  -s, --subgraph-name string   Specify the subgraph name of the flowchart (env: TERRAMAID_SUBGRAPH_NAME) (default "Terraform")
+  -s, --subgraph-name string   Specify the subgraph name of the diagram (env: TERRAMAID_SUBGRAPH_NAME) (default "Terraform")
   -b, --tf-binary string       Path to Terraform binary (env: TERRAMAID_TF_BINARY)
-  -d, --tf-dir string          Path to Terraform directory (env: TERRAMAID_TF_DIR) (default ".")
   -p, --tf-plan string         Path to Terraform plan file (env: TERRAMAID_TF_PLAN)
-  -w, --working-wir string     Working directory for Terraform (env: TERRAMAID_WORKING_DIR) (default ".")
+  -w, --working-dir string     Working directory for Terraform (env: TERRAMAID_WORKING_DIR) (default ".")
 
 Use "terramaid [command] --help" for more information about a command.
 ```
