@@ -112,7 +112,7 @@ make build
 The following configuration options are available:
 
 ```sh
-> terramaid -h
+> terramaid run -h
 A utility for generating Mermaid diagrams from Terraform
 
 Usage:
@@ -142,7 +142,7 @@ Use "terramaid [command] --help" for more information about a command.
 Run the following command to utilize the Terramaid Docker image:
 
 ```sh
-docker run -it -v $(pwd):/usr/src/terramaid rosesecurity/terramaid:latest
+docker run -it -v $(pwd):/usr/src/terramaid run rosesecurity/terramaid:latest
 ```
 
 ## CI/CD Integrations
