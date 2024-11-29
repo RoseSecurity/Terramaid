@@ -1,6 +1,6 @@
 module github.com/RoseSecurity/terramaid
 
-go 1.23
+go 1.22
 
 require (
 	github.com/arsham/figurine v1.3.0
