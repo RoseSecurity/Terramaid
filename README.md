@@ -142,7 +142,7 @@ Use "terramaid [command] --help" for more information about a command.
 Run the following command to utilize the Terramaid Docker image:
 
 ```sh
-docker run -it -v $(pwd):/usr/src/terramaid run rosesecurity/terramaid:latest
+docker run -it -v $(pwd):/usr/src/terramaid rosesecurity/terramaid:latest run
 ```
 
 ## CI/CD Integrations
