@@ -62,25 +62,23 @@ func generateDiagrams(opts *options) error {
 	// Spinner initialization and graph parsing
 	sp := utils.NewSpinner("Generating Terramaid Diagrams")
 	sp.Start()
+
 	graph, err := internal.ParseTerraform(opts.WorkingDir, opts.TFBinary, opts.TFPlan)
 	if err != nil {
+		sp.Stop()
 		return fmt.Errorf("error parsing Terraform: %w", err)
 	}
 
-	// Convert the graph to a Mermaid diagram
-	var mermaidDiagram string
-	switch opts.ChartType {
-	case "flowchart":
-		mermaidDiagram, err = internal.ConvertToMermaidFlowchart(graph, opts.Direction, opts.SubgraphName)
-		if err != nil {
-			return fmt.Errorf("error converting to Mermaid flowchart: %w", err)
-		}
-	default:
-		return fmt.Errorf("unsupported chart type: %s", opts.ChartType)
+	// Generate the Mermaid diagram
+	mermaidDiagram, err := internal.GenerateMermaidFlowchart(graph, opts.Direction, opts.SubgraphName)
+	if err != nil {
+		sp.Stop()
+		return fmt.Errorf("error generating Mermaid diagram: %w", err)
 	}
 
 	// Write the Mermaid diagram to the specified output file
 	if err := os.WriteFile(opts.Output, []byte(mermaidDiagram), 0o644); err != nil {
+		sp.Stop()
 		return fmt.Errorf("error writing to file: %w", err)
 	}
 
