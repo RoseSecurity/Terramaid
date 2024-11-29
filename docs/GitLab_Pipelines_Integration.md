@@ -35,7 +35,7 @@ terramaid:
       when: on_success
   script:
     - apk update && apk add curl jq
-    - docker run -v $(pwd):/usr/src/terramaid rosesecurity/terramaid:latest
+    - docker run -v $(pwd):/usr/src/terramaid run rosesecurity/terramaid:latest
     - |
       content=$(cat Terramaid.md)
       escaped_content=$(echo "$content" | jq -sRr @json)

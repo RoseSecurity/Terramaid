@@ -1,7 +1,7 @@
 FROM golang:alpine AS builder
 WORKDIR /usr/src/terramaid
 # Terraform version
-ARG TERRAFORM_VERSION=1.9.2
+ARG TERRAFORM_VERSION=1.10.0
 
 # Install necessary dependencies
 RUN apk update && apk add --no-cache \

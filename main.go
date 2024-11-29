@@ -1,12 +1,7 @@
 package main
 
-import (
-	"github.com/RoseSecurity/terramaid/cmd"
-	u "github.com/RoseSecurity/terramaid/pkg/utils"
-)
+import "github.com/RoseSecurity/terramaid/cmd"
 
 func main() {
-	if err := cmd.Execute(); err != nil {
-		u.LogErrorAndExit(err)
-	}
+	cmd.Execute()
 }
