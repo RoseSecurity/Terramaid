@@ -50,7 +50,7 @@ jobs:
     - name: Terramaid
       id: terramaid
       run: |
-        /usr/local/bin/terramaid
+        /usr/local/bin/terramaid run
 
     - name: Upload comment to PR
       uses: actions/github-script@v7
