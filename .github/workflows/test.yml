@@ -18,7 +18,7 @@ jobs:
           cache: false
       - run: |
           make build
-          build/terramaid -w test/aws
+          build/terramaid run -w test/aws
           cat Terramaid.md
   test_gcp:
     runs-on: ubuntu-latest
@@ -31,7 +31,7 @@ jobs:
           cache: false
       - run: |
           make build
-          build/terramaid -w test/gcp
+          build/terramaid run -w test/gcp
           cat Terramaid.md
   test_az:
     runs-on: ubuntu-latest
@@ -44,7 +44,7 @@ jobs:
           cache: false
       - run: |
           make build
-          build/terramaid -w test/az
+          build/terramaid run -w test/az
           cat Terramaid.md
   test_multi:
     runs-on: ubuntu-latest
@@ -57,5 +57,5 @@ jobs:
           cache: false
       - run: |
           make build
-          build/terramaid -w test/multi
+          build/terramaid run -w test/multi
           cat Terramaid.md
