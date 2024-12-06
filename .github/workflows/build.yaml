@@ -13,7 +13,7 @@ concurrency:
 jobs:
   build:
     name: "Build CLI and Attach to GitHub Release"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu 24
     steps:
       - uses: actions/checkout@v4
         with:
@@ -72,7 +72,7 @@ jobs:
 
   docker:
     name: "Build and Push Docker Image"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu 24
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -95,7 +95,7 @@ jobs:
 
   homebrew:
     name: "Bump Homebrew Formula"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu 24
     needs: build
     steps:
       - uses: mislav/bump-homebrew-formula-action@v3
