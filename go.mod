@@ -8,7 +8,7 @@ require (
 	github.com/arsham/figurine v1.3.0
 	github.com/awalterschulze/gographviz v2.0.3+incompatible
 	github.com/briandowns/spinner v1.23.1
-	github.com/caarlos0/env/v11 v11.3.0
+	github.com/caarlos0/env/v11 v11.3.1
 	github.com/fatih/color v1.18.0
 	github.com/hashicorp/terraform-exec v0.21.0
 	github.com/jwalton/go-supportscolor v1.2.0
