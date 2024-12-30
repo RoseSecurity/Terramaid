@@ -18,6 +18,9 @@ build: ## Build Terramaid
 install: ## Install dependencies
 	$(GO) install ./...@latest
 
+generate: ## Generate tooling licensing
+	cd tools; go generate ./...
+
 clean: ## Clean up build artifacts
 	$(GO) clean
 	rm ./build/$(BINARY_NAME)

@@ -1,3 +1,6 @@
+# Copyright (c) RoseSecurity
+# SPDX-License-Identifier: Apache-2.0
+
 FROM golang:alpine AS builder
 WORKDIR /usr/src/terramaid
 # Terraform version
