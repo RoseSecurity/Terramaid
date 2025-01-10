@@ -13,7 +13,7 @@ require (
 	github.com/hashicorp/copywrite v0.19.0
 	github.com/hashicorp/terraform-exec v0.21.0
 	github.com/jwalton/go-supportscolor v1.2.0
-	github.com/mattn/go-colorable v0.1.13
+	github.com/mattn/go-colorable v0.1.14
 	github.com/spf13/cobra v1.8.1
 	golang.org/x/mod v0.22.0
 )
@@ -77,7 +77,7 @@ require (
 	golang.org/x/net v0.23.0 // indirect
 	golang.org/x/oauth2 v0.8.0 // indirect
 	golang.org/x/sync v0.9.0 // indirect
-	golang.org/x/sys v0.25.0 // indirect
+	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/term v0.18.0 // indirect
 	golang.org/x/text v0.20.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
