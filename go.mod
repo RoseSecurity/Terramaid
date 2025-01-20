@@ -7,7 +7,7 @@ toolchain go1.23.5
 require (
 	github.com/arsham/figurine v1.3.0
 	github.com/awalterschulze/gographviz v2.0.3+incompatible
-	github.com/briandowns/spinner v1.23.1
+	github.com/briandowns/spinner v1.23.2
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/fatih/color v1.18.0
 	github.com/hashicorp/copywrite v0.19.0
