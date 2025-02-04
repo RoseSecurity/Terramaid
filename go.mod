@@ -15,7 +15,7 @@ require (
 	github.com/jwalton/go-supportscolor v1.2.0
 	github.com/mattn/go-colorable v0.1.14
 	github.com/spf13/cobra v1.8.1
-	golang.org/x/mod v0.22.0
+	golang.org/x/mod v0.23.0
 )
 
 require (
