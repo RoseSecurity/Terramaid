@@ -1,6 +1,6 @@
 module github.com/RoseSecurity/terramaid
 
-go 1.22.0
+go 1.23.0
 
 toolchain go1.24.1
 
@@ -15,7 +15,7 @@ require (
 	github.com/jwalton/go-supportscolor v1.2.0
 	github.com/mattn/go-colorable v0.1.14
 	github.com/spf13/cobra v1.9.1
-	golang.org/x/mod v0.23.0
+	golang.org/x/mod v0.24.0
 )
 
 require (
