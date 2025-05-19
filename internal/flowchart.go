@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/RoseSecurity/terramaid/pkg/utils"
 	"github.com/awalterschulze/gographviz"
 )
 
@@ -39,10 +40,17 @@ func CleanLabel(label string) string {
 }
 
 // GenerateMermaidFlowchart generates a Mermaid diagram from a gographviz graph
-func GenerateMermaidFlowchart(graph *gographviz.Graph, direction string, subgraphName string) (string, error) {
+func GenerateMermaidFlowchart(graph *gographviz.Graph, direction string, subgraphName string, verbose bool) (string, error) {
 	validDirections := map[string]bool{"TB": true, "TD": true, "BT": true, "RL": true, "LR": true}
 	if !validDirections[direction] {
 		return "", fmt.Errorf("invalid direction %s: valid options are TB, TD, BT, RL, LR", direction)
+	}
+
+	if verbose {
+		utils.LogVerbose("Generating Mermaid flowchart with direction: %s", direction)
+		if subgraphName != "" {
+			utils.LogVerbose("Using subgraph name: %s", subgraphName)
+		}
 	}
 
 	var sb strings.Builder
@@ -53,8 +61,11 @@ func GenerateMermaidFlowchart(graph *gographviz.Graph, direction string, subgrap
 	}
 
 	addedNodes := make(map[string]string)
-
 	addedProviders := make(map[string]bool)
+
+	if verbose {
+		utils.LogVerbose("Processing %d nodes", len(graph.Nodes.Nodes))
+	}
 
 	for _, node := range graph.Nodes.Nodes {
 		nodeID := CleanID(node.Name)
@@ -69,16 +80,26 @@ func GenerateMermaidFlowchart(graph *gographviz.Graph, direction string, subgrap
 				continue
 			}
 			addedProviders[nodeID] = true
+			if verbose {
+				utils.LogVerbose("Added provider node: %s", nodeID)
+			}
 		}
 
 		if _, exists := addedNodes[nodeID]; !exists {
 			sb.WriteString(fmt.Sprintf("        %s[\"%s\"]\n", nodeID, nodeLabel))
 			addedNodes[nodeID] = nodeLabel
+			if verbose && !strings.HasPrefix(nodeLabel, "provider:") {
+				utils.LogVerbose("Added node: %s", nodeID)
+			}
 		}
 	}
 
 	if subgraphName != "" {
 		sb.WriteString("    end\n")
+	}
+
+	if verbose {
+		utils.LogVerbose("Processing %d edges", len(graph.Edges.Edges))
 	}
 
 	for _, edge := range graph.Edges.Edges {
@@ -90,6 +111,9 @@ func GenerateMermaidFlowchart(graph *gographviz.Graph, direction string, subgrap
 			if fromLabel != "" {
 				sb.WriteString(fmt.Sprintf("        %s[\"%s\"]\n", fromID, fromLabel))
 				addedNodes[fromID] = fromLabel
+				if verbose {
+					utils.LogVerbose("Added source node from edge: %s", fromID)
+				}
 			}
 		}
 
@@ -98,12 +122,25 @@ func GenerateMermaidFlowchart(graph *gographviz.Graph, direction string, subgrap
 			if toLabel != "" {
 				sb.WriteString(fmt.Sprintf("        %s[\"%s\"]\n", toID, toLabel))
 				addedNodes[toID] = toLabel
+				if verbose {
+					utils.LogVerbose("Added destination node from edge: %s", toID)
+				}
 			}
 		}
 
 		sb.WriteString(fmt.Sprintf("    %s --> %s\n", fromID, toID))
+		if verbose {
+			utils.LogVerbose("Added edge: %s --> %s", fromID, toID)
+		}
 	}
 
 	sb.WriteString("```\n")
+	
+	if verbose {
+		nodeCount := len(addedNodes)
+		edgeCount := len(graph.Edges.Edges)
+		utils.LogVerbose("Mermaid diagram generation complete with %d nodes and %d edges", nodeCount, edgeCount)
+	}
+	
 	return sb.String(), nil
 }
