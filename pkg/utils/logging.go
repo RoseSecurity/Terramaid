@@ -5,6 +5,7 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 
@@ -44,4 +45,11 @@ func LogError(err error) {
 			color.Red("%s\n", err)
 		}
 	}
+}
+
+// LogVerbose logs messages in verbose mode
+func LogVerbose(format string, a ...interface{}) {
+	c := color.New(color.FgBlue)
+	message := fmt.Sprintf(format, a...)
+	c.Fprintf(color.Output, "[VERBOSE] %s\n", message)
 }
