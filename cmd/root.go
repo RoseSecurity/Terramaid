@@ -33,6 +33,9 @@ func init() {
 	rootCmd.AddCommand(docsCmd)
 	rootCmd.AddCommand(versionCmd)
 
+	// Add global flags
+	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "Enable verbose output")
+
 	// Disable auto-generated string from documentation so that documentation is cleanly built and updated
 	rootCmd.DisableAutoGenTag = true
 }
