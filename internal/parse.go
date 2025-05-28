@@ -21,14 +21,12 @@ const emptyGraph = `digraph G {
 `
 
 // ParseTerraform parses the Terraform plan and returns the generated graph
-func ParseTerraform(workingDir, tfPath, planFile string, verbose bool) (*gographviz.Graph, error) {
-	ctx := context.Background()
-	
+func ParseTerraform(ctx context.Context, workingDir, tfPath, planFile string, verbose bool) (*gographviz.Graph, error) {
 	if verbose {
 		utils.LogVerbose("Initializing Terraform with working directory: %s", workingDir)
 		utils.LogVerbose("Using Terraform binary: %s", tfPath)
 	}
-	
+
 	tf, err := tfexec.NewTerraform(workingDir, tfPath)
 	if err != nil {
 		return nil, err
@@ -37,7 +35,7 @@ func ParseTerraform(workingDir, tfPath, planFile string, verbose bool) (*gograph
 	if verbose {
 		utils.LogVerbose("Running terraform init with upgrade=true")
 	}
-	
+
 	if err := tf.Init(ctx, tfexec.Upgrade(true)); err != nil {
 		return nil, err
 	}
@@ -56,7 +54,7 @@ func ParseTerraform(workingDir, tfPath, planFile string, verbose bool) (*gograph
 	if verbose {
 		utils.LogVerbose("Running terraform graph command")
 	}
-	
+
 	output, err := tf.Graph(ctx, opts)
 	if err != nil {
 		return nil, err
