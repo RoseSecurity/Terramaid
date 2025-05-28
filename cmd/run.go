@@ -4,9 +4,11 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
+	"time"
 
 	"github.com/RoseSecurity/terramaid/internal"
 	"github.com/RoseSecurity/terramaid/pkg/utils"
@@ -15,14 +17,15 @@ import (
 )
 
 type options struct {
-	WorkingDir   string `env:"WORKING_DIR" envDefault:"."`
-	TFPlan       string `env:"TF_PLAN"`
-	TFBinary     string `env:"TF_BINARY"`
-	Output       string `env:"OUTPUT" envDefault:"Terramaid.md"`
-	Direction    string `env:"DIRECTION" envDefault:"TD"`
-	SubgraphName string `env:"SUBGRAPH_NAME" envDefault:"Terraform"`
-	ChartType    string `env:"CHART_TYPE" envDefault:"flowchart"`
-	Verbose      bool   `env:"VERBOSE" envDefault:"false"`
+	WorkingDir   string        `env:"WORKING_DIR" envDefault:"."`
+	TFPlan       string        `env:"TF_PLAN"`
+	TFBinary     string        `env:"TF_BINARY"`
+	Output       string        `env:"OUTPUT" envDefault:"Terramaid.md"`
+	Direction    string        `env:"DIRECTION" envDefault:"TD"`
+	SubgraphName string        `env:"SUBGRAPH_NAME" envDefault:"Terraform"`
+	ChartType    string        `env:"CHART_TYPE" envDefault:"flowchart"`
+	Verbose      bool          `env:"VERBOSE" envDefault:"false"`
+	Timeout      time.Duration `env:"TIMEOUT" envDefault:"0"`
 }
 
 var opts options // Global variable for flags and env variables
@@ -33,12 +36,19 @@ var runCmd = &cobra.Command{
 	SilenceUsage:  true,
 	SilenceErrors: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		// The opts variable is automatically populated with flags here
-		return generateDiagrams(&opts)
+		ctx := cmd.Context()
+
+		if opts.Timeout > 0 {
+			var cancel context.CancelFunc
+			ctx, cancel = context.WithTimeout(ctx, opts.Timeout)
+			defer cancel()
+		}
+
+		return generateDiagrams(ctx, &opts)
 	},
 }
 
-func generateDiagrams(opts *options) error {
+func generateDiagrams(ctx context.Context, opts *options) error {
 	if opts.Verbose {
 		utils.LogVerbose("Starting Terramaid with the following options:")
 		utils.LogVerbose("- Working Directory: %s", opts.WorkingDir)
@@ -48,6 +58,16 @@ func generateDiagrams(opts *options) error {
 		utils.LogVerbose("- Direction: %s", opts.Direction)
 		utils.LogVerbose("- Subgraph Name: %s", opts.SubgraphName)
 		utils.LogVerbose("- Chart Type: %s", opts.ChartType)
+		if opts.Timeout > 0 {
+			utils.LogVerbose("- Timeout: %s", opts.Timeout)
+		}
+	}
+
+	// Early cancellation check
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
 	}
 
 	if opts.WorkingDir != "" {
@@ -56,7 +76,7 @@ func generateDiagrams(opts *options) error {
 			return fmt.Errorf("error checking Terraform files in directory \"%s\": %v", opts.WorkingDir, err)
 		}
 		if !exists {
-			return fmt.Errorf("Terraform files do not exist in directory \"%s\"", opts.WorkingDir)
+			return fmt.Errorf("terraform files do not exist in directory \"%s\"", opts.WorkingDir)
 		}
 		if opts.Verbose {
 			utils.LogVerbose("Confirmed Terraform files exist in %s", opts.WorkingDir)
@@ -83,24 +103,33 @@ func generateDiagrams(opts *options) error {
 	// Spinner initialization and graph parsing
 	sp := utils.NewSpinner("Generating Terramaid Diagrams")
 	sp.Start()
+	defer sp.Stop()
 
 	if opts.Verbose {
 		utils.LogVerbose("Initializing Terraform and building graph...")
 	}
-	graph, err := internal.ParseTerraform(opts.WorkingDir, opts.TFBinary, opts.TFPlan, opts.Verbose)
+
+	graph, err := internal.ParseTerraform(ctx, opts.WorkingDir, opts.TFBinary, opts.TFPlan, opts.Verbose)
 	if err != nil {
-		sp.Stop()
 		return fmt.Errorf("error parsing Terraform: %w", err)
+	}
+
+	// Respect context cancellation after heavy parsing
+	if err := ctx.Err(); err != nil {
+		return err
 	}
 
 	// Generate the Mermaid diagram
 	if opts.Verbose {
 		utils.LogVerbose("Generating Mermaid flowchart...")
 	}
-	mermaidDiagram, err := internal.GenerateMermaidFlowchart(graph, opts.Direction, opts.SubgraphName, opts.Verbose)
+	mermaidDiagram, err := internal.GenerateMermaidFlowchart(ctx, graph, opts.Direction, opts.SubgraphName, opts.Verbose)
 	if err != nil {
-		sp.Stop()
 		return fmt.Errorf("error generating Mermaid diagram: %w", err)
+	}
+
+	if err := ctx.Err(); err != nil {
+		return err
 	}
 
 	// Write the Mermaid diagram to the specified output file
@@ -108,11 +137,9 @@ func generateDiagrams(opts *options) error {
 		utils.LogVerbose("Writing Mermaid diagram to %s", opts.Output)
 	}
 	if err := os.WriteFile(opts.Output, []byte(mermaidDiagram), 0o644); err != nil {
-		sp.Stop()
 		return fmt.Errorf("error writing to file: %w", err)
 	}
 
-	sp.Stop()
 	fmt.Printf("Mermaid diagram successfully written to %s\n", opts.Output)
 
 	return nil
@@ -133,6 +160,7 @@ func init() {
 	runCmd.Flags().StringVarP(&opts.TFBinary, "tf-binary", "b", opts.TFBinary, "Path to Terraform binary (env: TERRAMAID_TF_BINARY)")
 	runCmd.Flags().StringVarP(&opts.WorkingDir, "working-dir", "w", opts.WorkingDir, "Working directory for Terraform (env: TERRAMAID_WORKING_DIR)")
 	runCmd.Flags().BoolVarP(&opts.Verbose, "verbose", "v", opts.Verbose, "Enable verbose output (env: TERRAMAID_VERBOSE)")
+	runCmd.Flags().DurationVarP(&opts.Timeout, "timeout", "t", opts.Timeout, "Timeout for the entire run (e.g. 5m) (env: TERRAMAID_TIMEOUT)")
 
 	// Disable auto-generated string from documentation so that documentation is cleanly built and updated
 	runCmd.DisableAutoGenTag = true

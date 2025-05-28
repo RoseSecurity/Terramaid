@@ -4,6 +4,7 @@
 package internal
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"strings"
@@ -40,7 +41,7 @@ func CleanLabel(label string) string {
 }
 
 // GenerateMermaidFlowchart generates a Mermaid diagram from a gographviz graph
-func GenerateMermaidFlowchart(graph *gographviz.Graph, direction string, subgraphName string, verbose bool) (string, error) {
+func GenerateMermaidFlowchart(ctx context.Context, graph *gographviz.Graph, direction string, subgraphName string, verbose bool) (string, error) {
 	validDirections := map[string]bool{"TB": true, "TD": true, "BT": true, "RL": true, "LR": true}
 	if !validDirections[direction] {
 		return "", fmt.Errorf("invalid direction %s: valid options are TB, TD, BT, RL, LR", direction)
@@ -135,12 +136,12 @@ func GenerateMermaidFlowchart(graph *gographviz.Graph, direction string, subgrap
 	}
 
 	sb.WriteString("```\n")
-	
+
 	if verbose {
 		nodeCount := len(addedNodes)
 		edgeCount := len(graph.Edges.Edges)
 		utils.LogVerbose("Mermaid diagram generation complete with %d nodes and %d edges", nodeCount, edgeCount)
 	}
-	
+
 	return sb.String(), nil
 }
