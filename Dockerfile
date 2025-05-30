@@ -26,7 +26,7 @@ RUN <<EOF
     go build -v -o ./terramaid main.go
 EOF
 
-FROM alpine:3.21.3
+FROM alpine:3.22.0
 COPY --from=builder /usr/src/terramaid/terraform /usr/local/bin/terraform
 COPY --from=builder /usr/src/terramaid/terramaid /usr/local/bin/terramaid
 
