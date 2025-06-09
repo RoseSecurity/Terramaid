@@ -22,6 +22,12 @@ terramaid version
   -h, --help   help for version
 ```
 
+### Options inherited from parent commands
+
+```
+  -v, --verbose   Enable verbose output
+```
+
 ### SEE ALSO
 
 * [terramaid](terramaid.md)	 - A utility for generating Mermaid diagrams from Terraform configurations
