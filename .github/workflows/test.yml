@@ -12,8 +12,8 @@ jobs:
   test_aws:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: hashicorp/setup-terraform@v3
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: hashicorp/setup-terraform@8d201cf9ff6d24d02d9cc865fbc7c7c10319fdd7 # v3.0.0
       - uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
         with:
           go-version-file: "go.mod"
@@ -22,11 +22,12 @@ jobs:
           make build
           build/terramaid run -v -w test/aws
           cat Terramaid.md
+
   test_gcp:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: hashicorp/setup-terraform@v3
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: hashicorp/setup-terraform@8d201cf9ff6d24d02d9cc865fbc7c7c10319fdd7 # v3.0.0
       - uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
         with:
           go-version-file: "go.mod"
@@ -35,11 +36,12 @@ jobs:
           make build
           build/terramaid run -v -w test/gcp
           cat Terramaid.md
+
   test_az:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: hashicorp/setup-terraform@v3
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: hashicorp/setup-terraform@8d201cf9ff6d24d02d9cc865fbc7c7c10319fdd7 # v3.0.0
       - uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
         with:
           go-version-file: "go.mod"
@@ -48,11 +50,12 @@ jobs:
           make build
           build/terramaid run -v -w test/az
           cat Terramaid.md
+
   test_multi:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: hashicorp/setup-terraform@v3
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: hashicorp/setup-terraform@8d201cf9ff6d24d02d9cc865fbc7c7c10319fdd7 # v3.0.0
       - uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
         with:
           go-version-file: "go.mod"
