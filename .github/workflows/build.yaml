@@ -10,6 +10,9 @@ concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: false
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: "Build CLI and Attach to GitHub Release"
@@ -72,7 +75,7 @@ jobs:
 
   docker:
     name: "Build and Push Docker Image"
-    runs-on: ubuntu-latest 
+    runs-on: ubuntu-latest
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
