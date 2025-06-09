@@ -39,6 +39,12 @@ terramaid completion zsh [flags]
       --no-descriptions   disable completion descriptions
 ```
 
+### Options inherited from parent commands
+
+```
+  -v, --verbose   Enable verbose output
+```
+
 ### SEE ALSO
 
 * [terramaid completion](terramaid_completion.md)	 - Generate the autocompletion script for the specified shell
