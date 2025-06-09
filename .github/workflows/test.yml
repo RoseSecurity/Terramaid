@@ -6,6 +6,8 @@ on:
     branches:
       - main
 
+permissions: {}
+
 jobs:
   test_aws:
     runs-on: ubuntu-latest
