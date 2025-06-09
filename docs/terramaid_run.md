@@ -16,6 +16,8 @@ terramaid run [flags]
   -s, --subgraph-name string   Specify the subgraph name of the diagram (env: TERRAMAID_SUBGRAPH_NAME) (default "Terraform")
   -b, --tf-binary string       Path to Terraform binary (env: TERRAMAID_TF_BINARY)
   -p, --tf-plan string         Path to Terraform plan file (env: TERRAMAID_TF_PLAN)
+  -t, --timeout duration       Timeout for the entire run (e.g. 5m) (env: TERRAMAID_TIMEOUT)
+  -v, --verbose                Enable verbose output (env: TERRAMAID_VERBOSE)
   -w, --working-dir string     Working directory for Terraform (env: TERRAMAID_WORKING_DIR) (default ".")
 ```
 
