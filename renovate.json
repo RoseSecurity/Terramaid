@@ -1,21 +1,34 @@
 {
-  "extends": ["config:base"],
+  "extends": [
+    "config:recommended"
+  ],
   "packageRules": [
     {
       "description": "Update Go Dependencies",
-      "managers": ["gomod"],
-      "schedule": ["at any time"]
+      "matchManagers": [
+        "gomod"
+      ],
+      "schedule": [
+        "at any time"
+      ]
     },
     {
       "description": "Update Docker Dependencies",
-      "managers": ["dockerfile"],
-      "schedule": ["at any time"]
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "schedule": [
+        "at any time"
+      ]
     },
     {
       "description": "Update Homebrew Dependencies",
-      "managers": ["homebrew"],
-      "schedule": ["at any time"]
+      "matchManagers": [
+        "homebrew"
+      ],
+      "schedule": [
+        "at any time"
+      ]
     }
   ]
 }
-
