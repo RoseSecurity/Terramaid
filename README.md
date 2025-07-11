@@ -1,8 +1,6 @@
 # Terramaid
 
-<p align="center">
-<img width=100% height=100% src="./docs/img/Terramaid.png">
-</p>
+<img width="1318" height="714" alt="Terramaid" src="https://github.com/user-attachments/assets/0425a6e7-bcfd-4b15-9043-94b927bc6dc9" />
 
 <p align="center">
   <em>A utility for creating Mermaid diagrams from Terraform configurations</em>
@@ -14,9 +12,7 @@ Terramaid transforms your Terraform resources and plans into visually appealing 
 
 ## Demo
 
-<p align="center">
-<img width=100% height=100% src="./docs/img/terramaid_vhs_demo.gif">
-</p>
+![terramaid_vhs_demo](https://github.com/user-attachments/assets/25b0a82e-5cd7-41f1-8ea0-3270c1fae42a)
 
 ### Output
 
