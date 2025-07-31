@@ -90,7 +90,7 @@ jobs:
         id: version
         run: |
           version=$(echo "${{ github.ref }}" | awk -F"/" '{print $NF}' )
-          echo "::set-output name=version::$version"
+          echo "version=$version" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3.6.0
@@ -109,7 +109,7 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ github.repository_owner }}/terramaid:${{ steps.version.outputs.version }}
+          tags: rosesecurity/terramaid:${{ steps.version.outputs.version }}
 
   homebrew:
     name: "Bump Homebrew Formula"
