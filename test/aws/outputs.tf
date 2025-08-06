@@ -7,10 +7,10 @@ output "test_bucket_id" {
 }
 
 output "instance_id" {
-  value = aws_instance.example_instance.id
+  value = one(aws_instance.web_server[*].id)
 }
 
 output "db_instance_id" {
-  value = aws_db_instance.example_db.id
+  value = aws_db_instance.main_db.id
 }
 
