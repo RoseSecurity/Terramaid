@@ -2,7 +2,7 @@ module github.com/RoseSecurity/terramaid
 
 go 1.23.0
 
-toolchain go1.24.5
+toolchain go1.24.6
 
 require (
 	github.com/arsham/figurine v1.3.0
