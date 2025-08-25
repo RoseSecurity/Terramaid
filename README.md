@@ -90,6 +90,21 @@ Once the repository is configured, you can install with:
 apt install terramaid=<VERSION>
 ```
 
+### Nix
+
+```bash
+# Using nix run (no installation required)
+nix run github:RoseSecurity/terramaid run
+
+# Install globally with Nix flakes
+nix profile install github:RoseSecurity/Terramaid
+
+# Add to your system configuration or home-manager
+# In your flake.nix inputs:
+inputs.Terramaid.url = "github:RoseSecurity/Terramaid";
+# Then add to your packages: inputs.Terramaid.packages.${system}.default
+```
+
 ### Source
 
 ```sh
