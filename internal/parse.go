@@ -70,7 +70,7 @@ func ParseTerraform(ctx context.Context, workingDir, tfPath, planFile string, ve
 	}
 
 	// Parse the DOT output
-	graphAst, err := gographviz.ParseString(string(output))
+	graphAst, err := gographviz.ParseString(output)
 	if err != nil {
 		return nil, err
 	}
