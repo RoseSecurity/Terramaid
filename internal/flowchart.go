@@ -15,7 +15,7 @@ import (
 
 var labelCleaner = regexp.MustCompile(`\s*\(expand\)|\s*\(close\)|\[root\]\s*|"`)
 
-// CleanLabel removes unnecessary parts from the label
+// CleanID removes unnecessary parts from the label and sanitizes for Mermaid compatibility
 func CleanID(id string) string {
 	id = labelCleaner.ReplaceAllString(id, "")
 	if strings.HasPrefix(id, "provider[") {
@@ -23,10 +23,60 @@ func CleanID(id string) string {
 		id = strings.ReplaceAll(id, "]", "")
 		id = strings.ReplaceAll(id, "/", "_")
 		id = strings.ReplaceAll(id, ".", "_")
-		return id
+		return sanitizeMermaidID(id)
 	}
 	id = strings.ReplaceAll(id, ".", "_")
 	id = strings.ReplaceAll(id, "/", "_")
+	return sanitizeMermaidID(id)
+}
+
+// sanitizeMermaidID removes or replaces characters that can cause Mermaid parsing issues
+func sanitizeMermaidID(id string) string {
+	// Replace problematic characters that can cause Mermaid parsing errors
+	id = strings.ReplaceAll(id, "(", "_")
+	id = strings.ReplaceAll(id, ")", "_")
+	id = strings.ReplaceAll(id, "[", "_")
+	id = strings.ReplaceAll(id, "]", "_")
+	id = strings.ReplaceAll(id, "{", "_")
+	id = strings.ReplaceAll(id, "}", "_")
+	id = strings.ReplaceAll(id, "<", "_")
+	id = strings.ReplaceAll(id, ">", "_")
+	id = strings.ReplaceAll(id, " ", "_")
+	id = strings.ReplaceAll(id, "-", "_")
+	id = strings.ReplaceAll(id, ":", "_")
+	id = strings.ReplaceAll(id, ";", "_")
+	id = strings.ReplaceAll(id, ",", "_")
+	id = strings.ReplaceAll(id, "!", "_")
+	id = strings.ReplaceAll(id, "@", "_")
+	id = strings.ReplaceAll(id, "#", "_")
+	id = strings.ReplaceAll(id, "$", "_")
+	id = strings.ReplaceAll(id, "%", "_")
+	id = strings.ReplaceAll(id, "^", "_")
+	id = strings.ReplaceAll(id, "&", "_")
+	id = strings.ReplaceAll(id, "*", "_")
+	id = strings.ReplaceAll(id, "+", "_")
+	id = strings.ReplaceAll(id, "=", "_")
+	id = strings.ReplaceAll(id, "|", "_")
+	id = strings.ReplaceAll(id, "\\", "_")
+	id = strings.ReplaceAll(id, "?", "_")
+	id = strings.ReplaceAll(id, "'", "_")
+	id = strings.ReplaceAll(id, "\"", "_")
+	id = strings.ReplaceAll(id, "`", "_")
+	id = strings.ReplaceAll(id, "~", "_")
+
+	// Remove multiple consecutive underscores
+	for strings.Contains(id, "__") {
+		id = strings.ReplaceAll(id, "__", "_")
+	}
+
+	// Trim leading and trailing underscores
+	id = strings.Trim(id, "_")
+
+	// Ensure the ID is not empty and starts with a letter or underscore
+	if id == "" || (!strings.HasPrefix(id, "_") && (id[0] < 'A' || (id[0] > 'Z' && id[0] < 'a') || id[0] > 'z')) {
+		id = "node_" + id
+	}
+
 	return id
 }
 
