@@ -13,7 +13,13 @@ import (
 	"github.com/awalterschulze/gographviz"
 )
 
-var labelCleaner = regexp.MustCompile(`\s*\(expand\)|\s*\(close\)|\[root\]\s*|"`)
+var (
+	labelCleaner = regexp.MustCompile(`\s*\(expand\)|\s*\(close\)|\[root\]\s*|"`)
+	// Regex to match all problematic characters for Mermaid IDs in one pass
+	mermaidUnsafeChars = regexp.MustCompile(`[()[\]{}<>\s\-:;,!@#$%^&*+=|\\?'"` + "`" + `~]+`)
+	// Regex to match multiple consecutive underscores
+	multipleUnderscores = regexp.MustCompile(`_+`)
+)
 
 // CleanID removes unnecessary parts from the label and sanitizes for Mermaid compatibility
 func CleanID(id string) string {
@@ -32,48 +38,19 @@ func CleanID(id string) string {
 
 // sanitizeMermaidID removes or replaces characters that can cause Mermaid parsing issues
 func sanitizeMermaidID(id string) string {
-	// Replace problematic characters that can cause Mermaid parsing errors
-	id = strings.ReplaceAll(id, "(", "_")
-	id = strings.ReplaceAll(id, ")", "_")
-	id = strings.ReplaceAll(id, "[", "_")
-	id = strings.ReplaceAll(id, "]", "_")
-	id = strings.ReplaceAll(id, "{", "_")
-	id = strings.ReplaceAll(id, "}", "_")
-	id = strings.ReplaceAll(id, "<", "_")
-	id = strings.ReplaceAll(id, ">", "_")
-	id = strings.ReplaceAll(id, " ", "_")
-	id = strings.ReplaceAll(id, "-", "_")
-	id = strings.ReplaceAll(id, ":", "_")
-	id = strings.ReplaceAll(id, ";", "_")
-	id = strings.ReplaceAll(id, ",", "_")
-	id = strings.ReplaceAll(id, "!", "_")
-	id = strings.ReplaceAll(id, "@", "_")
-	id = strings.ReplaceAll(id, "#", "_")
-	id = strings.ReplaceAll(id, "$", "_")
-	id = strings.ReplaceAll(id, "%", "_")
-	id = strings.ReplaceAll(id, "^", "_")
-	id = strings.ReplaceAll(id, "&", "_")
-	id = strings.ReplaceAll(id, "*", "_")
-	id = strings.ReplaceAll(id, "+", "_")
-	id = strings.ReplaceAll(id, "=", "_")
-	id = strings.ReplaceAll(id, "|", "_")
-	id = strings.ReplaceAll(id, "\\", "_")
-	id = strings.ReplaceAll(id, "?", "_")
-	id = strings.ReplaceAll(id, "'", "_")
-	id = strings.ReplaceAll(id, "\"", "_")
-	id = strings.ReplaceAll(id, "`", "_")
-	id = strings.ReplaceAll(id, "~", "_")
+	// Replace all problematic characters with underscores in one pass
+	id = mermaidUnsafeChars.ReplaceAllString(id, "_")
 
-	// Remove multiple consecutive underscores
-	for strings.Contains(id, "__") {
-		id = strings.ReplaceAll(id, "__", "_")
-	}
+	// Replace multiple consecutive underscores with single underscore
+	id = multipleUnderscores.ReplaceAllString(id, "_")
 
 	// Trim leading and trailing underscores
 	id = strings.Trim(id, "_")
 
 	// Ensure the ID is not empty and starts with a letter or underscore
-	if id == "" || (!strings.HasPrefix(id, "_") && (id[0] < 'A' || (id[0] > 'Z' && id[0] < 'a') || id[0] > 'z')) {
+	if id == "" {
+		id = "node_"
+	} else if len(id) > 0 && !strings.HasPrefix(id, "_") && (id[0] < 'A' || (id[0] > 'Z' && id[0] < 'a') || id[0] > 'z') {
 		id = "node_" + id
 	}
 
