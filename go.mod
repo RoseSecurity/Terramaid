@@ -11,7 +11,7 @@ require (
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/fatih/color v1.18.0
 	github.com/hashicorp/copywrite v0.22.0
-	github.com/hashicorp/terraform-exec v0.23.1
+	github.com/hashicorp/terraform-exec v0.24.0
 	github.com/jwalton/go-supportscolor v1.2.0
 	github.com/mattn/go-colorable v0.1.14
 	github.com/spf13/cobra v1.9.1
@@ -42,7 +42,7 @@ require (
 	github.com/hashicorp/go-hclog v1.5.0 // indirect
 	github.com/hashicorp/go-version v1.7.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/hashicorp/terraform-json v0.26.0 // indirect
+	github.com/hashicorp/terraform-json v0.27.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jedib0t/go-pretty v4.3.0+incompatible // indirect
 	github.com/jedib0t/go-pretty/v6 v6.4.6 // indirect
