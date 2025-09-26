@@ -1,4 +1,3 @@
-// Copyright (c) RoseSecurity
 // SPDX-License-Identifier: Apache-2.0
 
 package cmd
@@ -17,15 +16,16 @@ import (
 )
 
 type options struct {
-	WorkingDir   string        `env:"WORKING_DIR" envDefault:"."`
-	TFPlan       string        `env:"TF_PLAN"`
-	TFBinary     string        `env:"TF_BINARY"`
-	Output       string        `env:"OUTPUT" envDefault:"Terramaid.md"`
-	Direction    string        `env:"DIRECTION" envDefault:"TD"`
-	SubgraphName string        `env:"SUBGRAPH_NAME" envDefault:"Terraform"`
-	ChartType    string        `env:"CHART_TYPE" envDefault:"flowchart"`
-	Verbose      bool          `env:"VERBOSE" envDefault:"false"`
-	Timeout      time.Duration `env:"TIMEOUT" envDefault:"0"`
+	WorkingDir    string        `env:"WORKING_DIR" envDefault:"."`
+	TFPlan        string        `env:"TF_PLAN"`
+	TFBinary      string        `env:"TF_BINARY"`
+	Output        string        `env:"OUTPUT" envDefault:"Terramaid.md"`
+	Direction     string        `env:"DIRECTION" envDefault:"TD"`
+	SubgraphName  string        `env:"SUBGRAPH_NAME" envDefault:"Terraform"`
+	ChartType     string        `env:"CHART_TYPE" envDefault:"flowchart"`
+	ResourcesOnly bool          `env:"RESOURCES_ONLY" envDefault:"false"`
+	Verbose       bool          `env:"VERBOSE" envDefault:"false"`
+	Timeout       time.Duration `env:"TIMEOUT" envDefault:"0"`
 }
 
 var opts options // Global variable for flags and env variables
@@ -58,6 +58,7 @@ func generateDiagrams(ctx context.Context, opts *options) error {
 		utils.LogVerbose("- Direction: %s", opts.Direction)
 		utils.LogVerbose("- Subgraph Name: %s", opts.SubgraphName)
 		utils.LogVerbose("- Chart Type: %s", opts.ChartType)
+		utils.LogVerbose("- Resources Only: %t", opts.ResourcesOnly)
 		if opts.Timeout > 0 {
 			utils.LogVerbose("- Timeout: %s", opts.Timeout)
 		}
@@ -123,7 +124,7 @@ func generateDiagrams(ctx context.Context, opts *options) error {
 	if opts.Verbose {
 		utils.LogVerbose("Generating Mermaid flowchart...")
 	}
-	mermaidDiagram, err := internal.GenerateMermaidFlowchart(ctx, graph, opts.Direction, opts.SubgraphName, opts.Verbose)
+	mermaidDiagram, err := internal.GenerateMermaidFlowchart(ctx, graph, opts.Direction, opts.SubgraphName, opts.ResourcesOnly, opts.Verbose)
 	if err != nil {
 		return fmt.Errorf("error generating Mermaid diagram: %w", err)
 	}
@@ -140,7 +141,7 @@ func generateDiagrams(ctx context.Context, opts *options) error {
 		return fmt.Errorf("error writing to file: %w", err)
 	}
 
-	fmt.Printf("Mermaid diagram successfully written to %s\n", opts.Output)
+	fmt.Printf("\nMermaid diagram successfully written to %s\n", opts.Output)
 
 	return nil
 }
@@ -160,6 +161,7 @@ func init() {
 	runCmd.Flags().StringVarP(&opts.TFBinary, "tf-binary", "b", opts.TFBinary, "Path to Terraform binary (env: TERRAMAID_TF_BINARY)")
 	runCmd.Flags().StringVarP(&opts.WorkingDir, "working-dir", "w", opts.WorkingDir, "Working directory for Terraform (env: TERRAMAID_WORKING_DIR)")
 	runCmd.Flags().BoolVarP(&opts.Verbose, "verbose", "v", opts.Verbose, "Enable verbose output (env: TERRAMAID_VERBOSE)")
+	runCmd.Flags().BoolVar(&opts.ResourcesOnly, "resources-only", opts.ResourcesOnly, "Only include resource-to-resource nodes and edges (env: TERRAMAID_RESOURCES_ONLY)")
 	runCmd.Flags().DurationVarP(&opts.Timeout, "timeout", "t", opts.Timeout, "Timeout for the entire run (e.g. 5m) (env: TERRAMAID_TIMEOUT)")
 
 	// Disable auto-generated string from documentation so that documentation is cleanly built and updated
