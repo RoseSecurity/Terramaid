@@ -33,6 +33,11 @@ var (
 	}
 )
 
+// init initializes package-level resource type customization from environment variables.
+// It sets `customResourceTypeMatcher` from `TERRAMAID_RESOURCE_TYPE_REGEX` if the value is a valid
+// regular expression (invalid patterns are ignored). It also populates
+// `customResourceTypePrefixes` from `TERRAMAID_RESOURCE_TYPE_PREFIXES` by splitting on commas,
+// trimming whitespace, and discarding empty entries.
 func init() {
 	if pattern := os.Getenv("TERRAMAID_RESOURCE_TYPE_REGEX"); pattern != "" {
 		// Best-effort compile; if it fails, we silently ignore and proceed with defaults
@@ -72,7 +77,19 @@ func (f *FilterConfig) IsEmpty() bool {
 // Label formats:
 // - <type>.<name> (e.g., aws_instance.web)
 // - module.<mod>.<type>.<name> (e.g., module.vpc.aws_subnet.private)
-// - data.<type>.<name> (e.g., data.aws_ami.latest)
+// parseLabelComponents parses a Terraform-style node label and returns the module path,
+// resource type, and provider.
+//
+// The function recognizes labels with leading module segments (e.g. "module.foo.module.bar.resource_type.name")
+// and returns the module path as dot-joined module names ("foo.bar"). For data sources of the form
+// "data.<type>.<name>" it returns the `<type>` as the resource type. For regular resources it returns
+// the first segment as the resource type (e.g. "aws_instance"). The provider is inferred as the prefix
+// before the first underscore in the resource type (e.g. "aws" from "aws_instance").
+//
+// Returns:
+//   - modulePath: dot-joined module names extracted from leading "module" segments, or empty if none.
+//   - resourceType: resource type or data source type if determinable, otherwise empty.
+//   - provider: prefix before '_' in resourceType, or empty if not present.
 func parseLabelComponents(label string) (modulePath string, resourceType string, provider string) {
 	if label == "" {
 		return "", "", ""
@@ -113,7 +130,8 @@ func parseLabelComponents(label string) (modulePath string, resourceType string,
 	return modulePath, resourceType, provider
 }
 
-// matchesGlobPattern checks if a string matches a glob pattern
+// matchesGlobPattern reports whether s matches the glob pattern.
+// It returns false when the pattern is invalid or when no match is found.
 func matchesGlobPattern(s string, pattern string) bool {
 	// Use filepath.Match for glob matching
 	matched, err := filepath.Match(pattern, s)
@@ -123,7 +141,8 @@ func matchesGlobPattern(s string, pattern string) bool {
 	return matched
 }
 
-// matchesAnyPattern checks if a string matches any of the given glob patterns
+// matchesAnyPattern reports whether s matches any of the provided glob patterns.
+// It returns true if at least one pattern matches s, false otherwise.
 func matchesAnyPattern(s string, patterns []string) bool {
 	for _, pattern := range patterns {
 		if matchesGlobPattern(s, pattern) {
@@ -207,7 +226,7 @@ func (f *FilterConfig) ShouldInclude(label string, verbose bool) bool {
 	return true
 }
 
-// CleanID removes unnecessary parts from the label and sanitizes for Mermaid compatibility
+// CleanID removes inline annotations and provider wrappers from an identifier, replaces dot and path separators with underscores, and returns a sanitized Mermaid-compatible identifier.
 func CleanID(id string) string {
 	id = labelCleaner.ReplaceAllString(id, "")
 	if strings.HasPrefix(id, "provider[") {
@@ -222,7 +241,11 @@ func CleanID(id string) string {
 	return sanitizeMermaidID(id)
 }
 
-// sanitizeMermaidID removes or replaces characters that can cause Mermaid parsing issues
+// sanitizeMermaidID cleans and normalizes a string for use as a Mermaid node ID.
+// It replaces characters matched by mermaidUnsafeChars with '_' , collapses
+// consecutive underscores, trims leading/trailing underscores, and ensures the
+// result is non-empty and begins with a letter or underscore by prefixing
+// "node_" when necessary.
 func sanitizeMermaidID(id string) string {
 	// Replace all problematic characters with underscores in one pass
 	id = mermaidUnsafeChars.ReplaceAllString(id, "_")
@@ -243,6 +266,8 @@ func sanitizeMermaidID(id string) string {
 	return id
 }
 
+// CleanLabel returns a human-friendly node label suitable for rendering.
+// It removes inline annotations and surrounding quotes, converts `provider[...]` to `provider: ...`, and strips backslashes.
 func CleanLabel(label string) string {
 	label = labelCleaner.ReplaceAllString(label, "")
 	if strings.HasPrefix(label, "provider[") {
@@ -255,7 +280,15 @@ func CleanLabel(label string) string {
 
 // isResourceLabel attempts to determine if a Terraform DOT node label represents a resource
 // rather than a provider/module/variable/meta node. This is heuristic-based but works well
-// across common providers and module addressing.
+// isResourceLabel reports whether the given Terraform-style label represents a resource node.
+//
+// It returns true for labels that look like Terraform resource or data addresses and false for provider,
+// module or other non-resource labels. The function ignores empty labels and labels beginning with
+// "provider:". Leading module segments ("module.<name>") are stripped before analysis. For data
+// addresses ("data.<type>.<name>") the type segment is inspected; for other addresses the type is taken
+// from the canonical position in the address. Detection is guided by an optional user-supplied regex
+// matcher and optional user prefixes, falls back to a set of built-in provider prefixes, and finally
+// treats any type segment containing an underscore ('_') as a resource.
 func isResourceLabel(label string) bool {
 	if label == "" {
 		return false
@@ -329,7 +362,11 @@ func isResourceLabel(label string) bool {
 	return false
 }
 
-// GenerateMermaidFlowchart generates a Mermaid diagram from a gographviz graph
+// GenerateMermaidFlowchart generates a Mermaid flowchart diagram from a gographviz graph.
+// It validates the layout direction (must be one of TB, TD, BT, RL, LR) and returns an error for invalid directions.
+// The output may include an optional named subgraph, can be limited to Terraform resource-like nodes when resourcesOnly is true, and is filtered by the provided FilterConfig (a nil filter is treated as empty).
+// When verbose is true the function emits progress messages via the utils logger.
+// It returns the complete Mermaid diagram as a string or an error if validation fails.
 func GenerateMermaidFlowchart(ctx context.Context, graph *gographviz.Graph, direction string, subgraphName string, resourcesOnly bool, filter *FilterConfig, verbose bool) (string, error) {
 	validDirections := map[string]bool{"TB": true, "TD": true, "BT": true, "RL": true, "LR": true}
 	if !validDirections[direction] {
