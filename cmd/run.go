@@ -53,6 +53,10 @@ var runCmd = &cobra.Command{
 	},
 }
 
+// generateDiagrams generates a Mermaid diagram from the Terraform configuration described by opts and writes it to opts.Output.
+// It validates the working directory and Terraform files, locates the Terraform binary if not provided, parses the Terraform graph,
+// applies filtering options from opts, generates the Mermaid flowchart, and writes the resulting diagram to the specified file.
+// It returns an error if the context is cancelled, validation fails, the Terraform binary cannot be found, parsing or diagram generation fails, or writing the output fails.
 func generateDiagrams(ctx context.Context, opts *options) error {
 	if opts.Verbose {
 		utils.LogVerbose("Starting Terramaid with the following options:")
@@ -172,6 +176,8 @@ func generateDiagrams(ctx context.Context, opts *options) error {
 	return nil
 }
 
+// init parses environment variables prefixed with TERRAMAID_ and binds command-line flags to the package options.
+// It prints any environment parsing error to stdout, registers flags (output, direction, subgraph-name, chart-type, tf-plan, tf-binary, working-dir, verbose, resources-only, timeout, include-types, exclude-types, include-providers, exclude-modules) onto runCmd, and disables Cobra's auto-generated documentation tag.
 func init() {
 	// Parse environment variables first, then bind flags to the opts struct
 	if err := env.ParseWithOptions(&opts, env.Options{Prefix: "TERRAMAID_"}); err != nil {
