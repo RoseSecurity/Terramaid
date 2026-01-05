@@ -3,187 +3,363 @@
 package internal
 
 import (
-    "context"
-    "fmt"
-    "os"
-    "regexp"
-    "strings"
+	"context"
+	"fmt"
+	"os"
+	"path/filepath"
+	"regexp"
+	"strings"
 
-    "github.com/RoseSecurity/terramaid/pkg/utils"
-    "github.com/awalterschulze/gographviz"
+	"github.com/RoseSecurity/terramaid/pkg/utils"
+	"github.com/awalterschulze/gographviz"
 )
 
 var (
-    labelCleaner = regexp.MustCompile(`\s*\(expand\)|\s*\(close\)|\[root\]\s*|"`)
-    // Regex to match all problematic characters for Mermaid IDs in one pass
-    mermaidUnsafeChars = regexp.MustCompile(`[()\[\]{}<>\s\-:;,!@#$%^&*+=|\\?\'"` + "`" + `~]+`)
-    // Regex to match multiple consecutive underscores
-    multipleUnderscores = regexp.MustCompile(`_+`)
-    // Optional, user-provided regex (via env TERRAMAID_RESOURCE_TYPE_REGEX) to classify resource types
-    customResourceTypeMatcher *regexp.Regexp
-    // Optional, user-provided prefixes (via env TERRAMAID_RESOURCE_TYPE_PREFIXES, comma-separated)
-    customResourceTypePrefixes []string
-    // Built-in defaults for common/major provider resource type prefixes
-    defaultResourceTypePrefixes = []string{
-        "aws", "azurerm", "google", "kubernetes", "helm",
-        "cloudflare", "datadog", "github", "gitlab", "digitalocean",
-        "linode", "openstack", "alicloud", "oci", "heroku",
-        "pagerduty", "random", "null", "tls",
-    }
+	labelCleaner = regexp.MustCompile(`\s*\(expand\)|\s*\(close\)|\[root\]\s*|"`)
+	// Regex to match all problematic characters for Mermaid IDs in one pass
+	mermaidUnsafeChars = regexp.MustCompile(`[()\[\]{}<>\s\-:;,!@#$%^&*+=|\\?\'"` + "`" + `~]+`)
+	// Regex to match multiple consecutive underscores
+	multipleUnderscores = regexp.MustCompile(`_+`)
+	// Optional, user-provided regex (via env TERRAMAID_RESOURCE_TYPE_REGEX) to classify resource types
+	customResourceTypeMatcher *regexp.Regexp
+	// Optional, user-provided prefixes (via env TERRAMAID_RESOURCE_TYPE_PREFIXES, comma-separated)
+	customResourceTypePrefixes []string
+	// Built-in defaults for common/major provider resource type prefixes
+	defaultResourceTypePrefixes = []string{
+		"aws", "azurerm", "google", "kubernetes", "helm",
+		"cloudflare", "datadog", "github", "gitlab", "digitalocean",
+		"linode", "openstack", "alicloud", "oci", "heroku",
+		"pagerduty", "random", "null", "tls",
+	}
 )
 
 func init() {
-    if pattern := os.Getenv("TERRAMAID_RESOURCE_TYPE_REGEX"); pattern != "" {
-        // Best-effort compile; if it fails, we silently ignore and proceed with defaults
-        if re, err := regexp.Compile(pattern); err == nil {
-            customResourceTypeMatcher = re
-        }
-    }
+	if pattern := os.Getenv("TERRAMAID_RESOURCE_TYPE_REGEX"); pattern != "" {
+		// Best-effort compile; if it fails, we silently ignore and proceed with defaults
+		if re, err := regexp.Compile(pattern); err == nil {
+			customResourceTypeMatcher = re
+		}
+	}
 
-    if prefixes := os.Getenv("TERRAMAID_RESOURCE_TYPE_PREFIXES"); prefixes != "" {
-        // Normalize: trim spaces and drop empties
-        for _, p := range strings.Split(prefixes, ",") {
-            p = strings.TrimSpace(p)
-            if p != "" {
-                customResourceTypePrefixes = append(customResourceTypePrefixes, p)
-            }
-        }
-    }
+	if prefixes := os.Getenv("TERRAMAID_RESOURCE_TYPE_PREFIXES"); prefixes != "" {
+		// Normalize: trim spaces and drop empties
+		for _, p := range strings.Split(prefixes, ",") {
+			p = strings.TrimSpace(p)
+			if p != "" {
+				customResourceTypePrefixes = append(customResourceTypePrefixes, p)
+			}
+		}
+	}
+}
+
+// FilterConfig holds the configuration for filtering resources in the diagram
+type FilterConfig struct {
+	IncludeTypes     []string // Include only these resource types (supports glob patterns)
+	ExcludeTypes     []string // Exclude these resource types (supports glob patterns)
+	IncludeProviders []string // Include only resources from these providers
+	ExcludeModules   []string // Exclude resources from these modules
+}
+
+// IsEmpty returns true if no filters are configured
+func (f *FilterConfig) IsEmpty() bool {
+	return len(f.IncludeTypes) == 0 &&
+		len(f.ExcludeTypes) == 0 &&
+		len(f.IncludeProviders) == 0 &&
+		len(f.ExcludeModules) == 0
+}
+
+// parseLabelComponents extracts the module path, resource type, and provider from a Terraform label
+// Label formats:
+// - <type>.<name> (e.g., aws_instance.web)
+// - module.<mod>.<type>.<name> (e.g., module.vpc.aws_subnet.private)
+// - data.<type>.<name> (e.g., data.aws_ami.latest)
+func parseLabelComponents(label string) (modulePath string, resourceType string, provider string) {
+	if label == "" {
+		return "", "", ""
+	}
+
+	parts := strings.Split(label, ".")
+	if len(parts) < 2 {
+		return "", "", ""
+	}
+
+	// Collect module path segments
+	var moduleSegments []string
+	for len(parts) >= 2 && parts[0] == "module" {
+		moduleSegments = append(moduleSegments, parts[1])
+		parts = parts[2:]
+	}
+	modulePath = strings.Join(moduleSegments, ".")
+
+	if len(parts) < 2 {
+		return modulePath, "", ""
+	}
+
+	// Handle data sources: data.<type>.<name>
+	if parts[0] == "data" {
+		if len(parts) >= 3 {
+			resourceType = parts[1]
+		}
+	} else {
+		// Regular resource: <type>.<name>
+		resourceType = parts[0]
+	}
+
+	// Extract provider from resource type (e.g., "aws" from "aws_instance")
+	if idx := strings.Index(resourceType, "_"); idx > 0 {
+		provider = resourceType[:idx]
+	}
+
+	return modulePath, resourceType, provider
+}
+
+// matchesGlobPattern checks if a string matches a glob pattern
+func matchesGlobPattern(s string, pattern string) bool {
+	// Use filepath.Match for glob matching
+	matched, err := filepath.Match(pattern, s)
+	if err != nil {
+		return false
+	}
+	return matched
+}
+
+// matchesAnyPattern checks if a string matches any of the given glob patterns
+func matchesAnyPattern(s string, patterns []string) bool {
+	for _, pattern := range patterns {
+		if matchesGlobPattern(s, pattern) {
+			return true
+		}
+	}
+	return false
+}
+
+// ShouldInclude determines if a resource label should be included based on the filter configuration
+func (f *FilterConfig) ShouldInclude(label string, verbose bool) bool {
+	// If no filters are configured, include everything
+	if f.IsEmpty() {
+		return true
+	}
+
+	modulePath, resourceType, provider := parseLabelComponents(label)
+
+	// Check module exclusions first (exclusions take priority)
+	if len(f.ExcludeModules) > 0 && modulePath != "" {
+		for _, excludeModule := range f.ExcludeModules {
+			// Check if the module path contains or matches the excluded module
+			if strings.Contains(modulePath, excludeModule) || matchesGlobPattern(modulePath, excludeModule) {
+				if verbose {
+					utils.LogVerbose("Excluding %s: module %s matches exclude pattern %s", label, modulePath, excludeModule)
+				}
+				return false
+			}
+		}
+	}
+
+	// Check type exclusions
+	if len(f.ExcludeTypes) > 0 && resourceType != "" {
+		if matchesAnyPattern(resourceType, f.ExcludeTypes) {
+			if verbose {
+				utils.LogVerbose("Excluding %s: type %s matches exclude pattern", label, resourceType)
+			}
+			return false
+		}
+	}
+
+	// Check provider inclusions (if specified, only these providers are allowed)
+	if len(f.IncludeProviders) > 0 {
+		if provider == "" {
+			if verbose {
+				utils.LogVerbose("Excluding %s: no provider detected and provider filter is active", label)
+			}
+			return false
+		}
+		providerMatch := false
+		for _, includeProvider := range f.IncludeProviders {
+			if strings.EqualFold(provider, includeProvider) {
+				providerMatch = true
+				break
+			}
+		}
+		if !providerMatch {
+			if verbose {
+				utils.LogVerbose("Excluding %s: provider %s not in include list", label, provider)
+			}
+			return false
+		}
+	}
+
+	// Check type inclusions (if specified, only these types are allowed)
+	if len(f.IncludeTypes) > 0 {
+		if resourceType == "" {
+			if verbose {
+				utils.LogVerbose("Excluding %s: no resource type detected and type filter is active", label)
+			}
+			return false
+		}
+		if !matchesAnyPattern(resourceType, f.IncludeTypes) {
+			if verbose {
+				utils.LogVerbose("Excluding %s: type %s not in include list", label, resourceType)
+			}
+			return false
+		}
+	}
+
+	return true
 }
 
 // CleanID removes unnecessary parts from the label and sanitizes for Mermaid compatibility
 func CleanID(id string) string {
-    id = labelCleaner.ReplaceAllString(id, "")
-    if strings.HasPrefix(id, "provider[") {
-        id = strings.ReplaceAll(id, "provider[", "provider_")
-        id = strings.ReplaceAll(id, "]", "")
-        id = strings.ReplaceAll(id, "/", "_")
-        id = strings.ReplaceAll(id, ".", "_")
-        return sanitizeMermaidID(id)
-    }
-    id = strings.ReplaceAll(id, ".", "_")
-    id = strings.ReplaceAll(id, "/", "_")
-    return sanitizeMermaidID(id)
+	id = labelCleaner.ReplaceAllString(id, "")
+	if strings.HasPrefix(id, "provider[") {
+		id = strings.ReplaceAll(id, "provider[", "provider_")
+		id = strings.ReplaceAll(id, "]", "")
+		id = strings.ReplaceAll(id, "/", "_")
+		id = strings.ReplaceAll(id, ".", "_")
+		return sanitizeMermaidID(id)
+	}
+	id = strings.ReplaceAll(id, ".", "_")
+	id = strings.ReplaceAll(id, "/", "_")
+	return sanitizeMermaidID(id)
 }
 
 // sanitizeMermaidID removes or replaces characters that can cause Mermaid parsing issues
 func sanitizeMermaidID(id string) string {
-    // Replace all problematic characters with underscores in one pass
-    id = mermaidUnsafeChars.ReplaceAllString(id, "_")
+	// Replace all problematic characters with underscores in one pass
+	id = mermaidUnsafeChars.ReplaceAllString(id, "_")
 
-    // Replace multiple consecutive underscores with single underscore
-    id = multipleUnderscores.ReplaceAllString(id, "_")
+	// Replace multiple consecutive underscores with single underscore
+	id = multipleUnderscores.ReplaceAllString(id, "_")
 
-    // Trim leading and trailing underscores
-    id = strings.Trim(id, "_")
+	// Trim leading and trailing underscores
+	id = strings.Trim(id, "_")
 
-    // Ensure the ID is not empty and starts with a letter or underscore
-    if id == "" {
-        id = "node_"
-    } else if len(id) > 0 && !strings.HasPrefix(id, "_") && (id[0] < 'A' || (id[0] > 'Z' && id[0] < 'a') || id[0] > 'z') {
-        id = "node_" + id
-    }
+	// Ensure the ID is not empty and starts with a letter or underscore
+	if id == "" {
+		id = "node_"
+	} else if len(id) > 0 && !strings.HasPrefix(id, "_") && (id[0] < 'A' || (id[0] > 'Z' && id[0] < 'a') || id[0] > 'z') {
+		id = "node_" + id
+	}
 
-    return id
+	return id
 }
 
 func CleanLabel(label string) string {
-    label = labelCleaner.ReplaceAllString(label, "")
-    if strings.HasPrefix(label, "provider[") {
-        label = strings.ReplaceAll(label, "[", ": ")
-        label = strings.ReplaceAll(label, "]", "")
-    }
-    label = strings.ReplaceAll(label, "\\", "")
-    return label
+	label = labelCleaner.ReplaceAllString(label, "")
+	if strings.HasPrefix(label, "provider[") {
+		label = strings.ReplaceAll(label, "[", ": ")
+		label = strings.ReplaceAll(label, "]", "")
+	}
+	label = strings.ReplaceAll(label, "\\", "")
+	return label
 }
 
 // isResourceLabel attempts to determine if a Terraform DOT node label represents a resource
 // rather than a provider/module/variable/meta node. This is heuristic-based but works well
 // across common providers and module addressing.
 func isResourceLabel(label string) bool {
-    if label == "" {
-        return false
-    }
+	if label == "" {
+		return false
+	}
 
-    // Exclude providers explicitly handled elsewhere
-    if strings.HasPrefix(label, "provider:") {
-        return false
-    }
+	// Exclude providers explicitly handled elsewhere
+	if strings.HasPrefix(label, "provider:") {
+		return false
+	}
 
-    // Terraform graph labels generally follow addressing like:
-    // - <type>.<name>
-    // - module.<mod>.<type>.<name>
-    // - data.<type>.<name> (optionally with module prefixes)
-    parts := strings.Split(label, ".")
-    if len(parts) < 2 {
-        return false
-    }
+	// Terraform graph labels generally follow addressing like:
+	// - <type>.<name>
+	// - module.<mod>.<type>.<name>
+	// - data.<type>.<name> (optionally with module prefixes)
+	parts := strings.Split(label, ".")
+	if len(parts) < 2 {
+		return false
+	}
 
-    // Strip any number of leading module segments: module.<name>.
-    for len(parts) >= 2 && parts[0] == "module" {
-        parts = parts[2:]
-    }
+	// Strip any number of leading module segments: module.<name>.
+	for len(parts) >= 2 && parts[0] == "module" {
+		parts = parts[2:]
+	}
 
-    if len(parts) < 2 {
-        return false
-    }
+	if len(parts) < 2 {
+		return false
+	}
 
-    // Determine the resource type segment
-    var typeSeg string
-    if parts[0] == "data" {
-        // data.<type>.<name>
-        if len(parts) < 3 {
-            return false
-        }
-        typeSeg = parts[1]
-    } else {
-        // <type>.<name> (possibly with extra addressing suffixes)
-        typeIdx := len(parts) - 2
-        if typeIdx < 0 {
-            return false
-        }
-        typeSeg = parts[typeIdx]
-    }
+	// Determine the resource type segment
+	var typeSeg string
+	if parts[0] == "data" {
+		// data.<type>.<name>
+		if len(parts) < 3 {
+			return false
+		}
+		typeSeg = parts[1]
+	} else {
+		// <type>.<name> (possibly with extra addressing suffixes)
+		typeIdx := len(parts) - 2
+		if typeIdx < 0 {
+			return false
+		}
+		typeSeg = parts[typeIdx]
+	}
 
-    // Optional custom matcher provided by user
-    if customResourceTypeMatcher != nil && customResourceTypeMatcher.MatchString(typeSeg) {
-        return true
-    }
+	// Optional custom matcher provided by user
+	if customResourceTypeMatcher != nil && customResourceTypeMatcher.MatchString(typeSeg) {
+		return true
+	}
 
-    // Optional custom prefixes provided by user
-    for _, pref := range customResourceTypePrefixes {
-        if strings.HasPrefix(typeSeg, pref) {
-            return true
-        }
-    }
+	// Optional custom prefixes provided by user
+	for _, pref := range customResourceTypePrefixes {
+		if strings.HasPrefix(typeSeg, pref) {
+			return true
+		}
+	}
 
-    // Built-in default prefixes for major providers
-    for _, pref := range defaultResourceTypePrefixes {
-        if strings.HasPrefix(typeSeg, pref) {
-            return true
-        }
-    }
+	// Built-in default prefixes for major providers
+	for _, pref := range defaultResourceTypePrefixes {
+		if strings.HasPrefix(typeSeg, pref) {
+			return true
+		}
+	}
 
-    // Generic heuristic: most Terraform resource types contain an underscore
-    // (e.g., aws_s3_bucket, azurerm_resource_group, google_compute_instance, customprov_widget)
-    if strings.Contains(typeSeg, "_") {
-        return true
-    }
+	// Generic heuristic: most Terraform resource types contain an underscore
+	// (e.g., aws_s3_bucket, azurerm_resource_group, google_compute_instance, customprov_widget)
+	if strings.Contains(typeSeg, "_") {
+		return true
+	}
 
-    return false
+	return false
 }
 
 // GenerateMermaidFlowchart generates a Mermaid diagram from a gographviz graph
-func GenerateMermaidFlowchart(ctx context.Context, graph *gographviz.Graph, direction string, subgraphName string, resourcesOnly bool, verbose bool) (string, error) {
-    validDirections := map[string]bool{"TB": true, "TD": true, "BT": true, "RL": true, "LR": true}
-    if !validDirections[direction] {
-        return "", fmt.Errorf("invalid direction %s: valid options are TB, TD, BT, RL, LR", direction)
-    }
+func GenerateMermaidFlowchart(ctx context.Context, graph *gographviz.Graph, direction string, subgraphName string, resourcesOnly bool, filter *FilterConfig, verbose bool) (string, error) {
+	validDirections := map[string]bool{"TB": true, "TD": true, "BT": true, "RL": true, "LR": true}
+	if !validDirections[direction] {
+		return "", fmt.Errorf("invalid direction %s: valid options are TB, TD, BT, RL, LR", direction)
+	}
+
+	// Initialize filter if nil to avoid nil pointer checks
+	if filter == nil {
+		filter = &FilterConfig{}
+	}
 
 	if verbose {
 		utils.LogVerbose("Generating Mermaid flowchart with direction: %s", direction)
 		if subgraphName != "" {
 			utils.LogVerbose("Using subgraph name: %s", subgraphName)
+		}
+		if !filter.IsEmpty() {
+			utils.LogVerbose("Filter configuration active:")
+			if len(filter.IncludeTypes) > 0 {
+				utils.LogVerbose("  - Include types: %v", filter.IncludeTypes)
+			}
+			if len(filter.ExcludeTypes) > 0 {
+				utils.LogVerbose("  - Exclude types: %v", filter.ExcludeTypes)
+			}
+			if len(filter.IncludeProviders) > 0 {
+				utils.LogVerbose("  - Include providers: %v", filter.IncludeProviders)
+			}
+			if len(filter.ExcludeModules) > 0 {
+				utils.LogVerbose("  - Exclude modules: %v", filter.ExcludeModules)
+			}
 		}
 	}
 
@@ -227,6 +403,11 @@ func GenerateMermaidFlowchart(ctx context.Context, graph *gographviz.Graph, dire
 			continue
 		}
 
+		// Apply custom filters
+		if !filter.ShouldInclude(nodeLabel, verbose) {
+			continue
+		}
+
 		if _, exists := addedNodes[nodeID]; !exists {
 			sb.WriteString(fmt.Sprintf("        %s[\"%s\"]\n", nodeID, nodeLabel))
 			addedNodes[nodeID] = nodeLabel
@@ -247,53 +428,59 @@ func GenerateMermaidFlowchart(ctx context.Context, graph *gographviz.Graph, dire
 	for _, edge := range graph.Edges.Edges {
 		fromID := CleanID(edge.Src)
 		toID := CleanID(edge.Dst)
+		fromLabel := CleanLabel(graph.Nodes.Lookup[edge.Src].Attrs["label"])
+		toLabel := CleanLabel(graph.Nodes.Lookup[edge.Dst].Attrs["label"])
 
-		if _, exists := addedNodes[fromID]; !exists {
-			fromLabel := CleanLabel(graph.Nodes.Lookup[edge.Src].Attrs["label"])
-			if fromLabel != "" {
-				if resourcesOnly && !isResourceLabel(fromLabel) {
-					if verbose {
-						utils.LogVerbose("Skipping edge source (non-resource) due to resourcesOnly: %s", fromID)
-					}
-					// Skip adding this node; if either endpoint is non-resource, skip the edge later
-				} else {
-					sb.WriteString(fmt.Sprintf("        %s[\"%s\"]\n", fromID, fromLabel))
-					addedNodes[fromID] = fromLabel
-					if verbose {
-						utils.LogVerbose("Added source node from edge: %s", fromID)
-					}
-				}
-			}
-		}
-
-		if _, exists := addedNodes[toID]; !exists {
-			toLabel := CleanLabel(graph.Nodes.Lookup[edge.Dst].Attrs["label"])
-			if toLabel != "" {
-				if resourcesOnly && !isResourceLabel(toLabel) {
-					if verbose {
-						utils.LogVerbose("Skipping edge destination (non-resource) due to resourcesOnly: %s", toID)
-					}
-					// Skip adding this node; if either endpoint is non-resource, skip the edge later
-				} else {
-					sb.WriteString(fmt.Sprintf("        %s[\"%s\"]\n", toID, toLabel))
-					addedNodes[toID] = toLabel
-					if verbose {
-						utils.LogVerbose("Added destination node from edge: %s", toID)
-					}
-				}
-			}
-		}
-
-		// If resourcesOnly, include the edge only if both endpoints are resources
-		if resourcesOnly {
-			fromLabel := CleanLabel(graph.Nodes.Lookup[edge.Src].Attrs["label"])
-			toLabel := CleanLabel(graph.Nodes.Lookup[edge.Dst].Attrs["label"])
-			if !isResourceLabel(fromLabel) || !isResourceLabel(toLabel) {
+		// Check if source node should be included
+		fromIncluded := true
+		if fromLabel != "" {
+			if resourcesOnly && !isResourceLabel(fromLabel) {
+				fromIncluded = false
 				if verbose {
-					utils.LogVerbose("Skipping edge due to non-resource endpoint(s): %s --> %s", fromID, toID)
+					utils.LogVerbose("Skipping edge source (non-resource) due to resourcesOnly: %s", fromID)
 				}
-				continue
+			} else if !filter.ShouldInclude(fromLabel, verbose) {
+				fromIncluded = false
 			}
+		}
+
+		// Check if destination node should be included
+		toIncluded := true
+		if toLabel != "" {
+			if resourcesOnly && !isResourceLabel(toLabel) {
+				toIncluded = false
+				if verbose {
+					utils.LogVerbose("Skipping edge destination (non-resource) due to resourcesOnly: %s", toID)
+				}
+			} else if !filter.ShouldInclude(toLabel, verbose) {
+				toIncluded = false
+			}
+		}
+
+		// Add source node if not already added and passes filters
+		if _, exists := addedNodes[fromID]; !exists && fromIncluded && fromLabel != "" {
+			sb.WriteString(fmt.Sprintf("        %s[\"%s\"]\n", fromID, fromLabel))
+			addedNodes[fromID] = fromLabel
+			if verbose {
+				utils.LogVerbose("Added source node from edge: %s", fromID)
+			}
+		}
+
+		// Add destination node if not already added and passes filters
+		if _, exists := addedNodes[toID]; !exists && toIncluded && toLabel != "" {
+			sb.WriteString(fmt.Sprintf("        %s[\"%s\"]\n", toID, toLabel))
+			addedNodes[toID] = toLabel
+			if verbose {
+				utils.LogVerbose("Added destination node from edge: %s", toID)
+			}
+		}
+
+		// Skip edge if either endpoint is filtered out
+		if !fromIncluded || !toIncluded {
+			if verbose {
+				utils.LogVerbose("Skipping edge due to filtered endpoint(s): %s --> %s", fromID, toID)
+			}
+			continue
 		}
 
 		sb.WriteString(fmt.Sprintf("    %s --> %s\n", fromID, toID))

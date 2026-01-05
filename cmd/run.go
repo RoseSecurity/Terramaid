@@ -17,16 +17,20 @@ import (
 )
 
 type options struct {
-	WorkingDir    string        `env:"WORKING_DIR" envDefault:"."`
-	TFPlan        string        `env:"TF_PLAN"`
-	TFBinary      string        `env:"TF_BINARY"`
-	Output        string        `env:"OUTPUT" envDefault:"Terramaid.md"`
-	Direction     string        `env:"DIRECTION" envDefault:"TD"`
-	SubgraphName  string        `env:"SUBGRAPH_NAME" envDefault:"Terraform"`
-	ChartType     string        `env:"CHART_TYPE" envDefault:"flowchart"`
-	ResourcesOnly bool          `env:"RESOURCES_ONLY" envDefault:"false"`
-	Verbose       bool          `env:"VERBOSE" envDefault:"false"`
-	Timeout       time.Duration `env:"TIMEOUT" envDefault:"0"`
+	WorkingDir       string        `env:"WORKING_DIR" envDefault:"."`
+	TFPlan           string        `env:"TF_PLAN"`
+	TFBinary         string        `env:"TF_BINARY"`
+	Output           string        `env:"OUTPUT" envDefault:"Terramaid.md"`
+	Direction        string        `env:"DIRECTION" envDefault:"TD"`
+	SubgraphName     string        `env:"SUBGRAPH_NAME" envDefault:"Terraform"`
+	ChartType        string        `env:"CHART_TYPE" envDefault:"flowchart"`
+	ResourcesOnly    bool          `env:"RESOURCES_ONLY" envDefault:"false"`
+	Verbose          bool          `env:"VERBOSE" envDefault:"false"`
+	Timeout          time.Duration `env:"TIMEOUT" envDefault:"0"`
+	IncludeTypes     []string      `env:"INCLUDE_TYPES" envSeparator:","`
+	ExcludeTypes     []string      `env:"EXCLUDE_TYPES" envSeparator:","`
+	IncludeProviders []string      `env:"INCLUDE_PROVIDERS" envSeparator:","`
+	ExcludeModules   []string      `env:"EXCLUDE_MODULES" envSeparator:","`
 }
 
 var opts options // Global variable for flags and env variables
@@ -62,6 +66,18 @@ func generateDiagrams(ctx context.Context, opts *options) error {
 		utils.LogVerbose("- Resources Only: %t", opts.ResourcesOnly)
 		if opts.Timeout > 0 {
 			utils.LogVerbose("- Timeout: %s", opts.Timeout)
+		}
+		if len(opts.IncludeTypes) > 0 {
+			utils.LogVerbose("- Include Types: %v", opts.IncludeTypes)
+		}
+		if len(opts.ExcludeTypes) > 0 {
+			utils.LogVerbose("- Exclude Types: %v", opts.ExcludeTypes)
+		}
+		if len(opts.IncludeProviders) > 0 {
+			utils.LogVerbose("- Include Providers: %v", opts.IncludeProviders)
+		}
+		if len(opts.ExcludeModules) > 0 {
+			utils.LogVerbose("- Exclude Modules: %v", opts.ExcludeModules)
 		}
 	}
 
@@ -125,7 +141,16 @@ func generateDiagrams(ctx context.Context, opts *options) error {
 	if opts.Verbose {
 		utils.LogVerbose("Generating Mermaid flowchart...")
 	}
-	mermaidDiagram, err := internal.GenerateMermaidFlowchart(ctx, graph, opts.Direction, opts.SubgraphName, opts.ResourcesOnly, opts.Verbose)
+
+	// Create filter configuration
+	filter := &internal.FilterConfig{
+		IncludeTypes:     opts.IncludeTypes,
+		ExcludeTypes:     opts.ExcludeTypes,
+		IncludeProviders: opts.IncludeProviders,
+		ExcludeModules:   opts.ExcludeModules,
+	}
+
+	mermaidDiagram, err := internal.GenerateMermaidFlowchart(ctx, graph, opts.Direction, opts.SubgraphName, opts.ResourcesOnly, filter, opts.Verbose)
 	if err != nil {
 		return fmt.Errorf("error generating Mermaid diagram: %w", err)
 	}
@@ -164,6 +189,10 @@ func init() {
 	runCmd.Flags().BoolVarP(&opts.Verbose, "verbose", "v", opts.Verbose, "Enable verbose output (env: TERRAMAID_VERBOSE)")
 	runCmd.Flags().BoolVar(&opts.ResourcesOnly, "resources-only", opts.ResourcesOnly, "Only include resource-to-resource nodes and edges (env: TERRAMAID_RESOURCES_ONLY)")
 	runCmd.Flags().DurationVarP(&opts.Timeout, "timeout", "t", opts.Timeout, "Timeout for the entire run (e.g. 5m) (env: TERRAMAID_TIMEOUT)")
+	runCmd.Flags().StringSliceVar(&opts.IncludeTypes, "include-types", opts.IncludeTypes, "Include only these resource types, supports glob patterns (env: TERRAMAID_INCLUDE_TYPES)")
+	runCmd.Flags().StringSliceVar(&opts.ExcludeTypes, "exclude-types", opts.ExcludeTypes, "Exclude these resource types, supports glob patterns (env: TERRAMAID_EXCLUDE_TYPES)")
+	runCmd.Flags().StringSliceVar(&opts.IncludeProviders, "include-providers", opts.IncludeProviders, "Include only resources from these providers (env: TERRAMAID_INCLUDE_PROVIDERS)")
+	runCmd.Flags().StringSliceVar(&opts.ExcludeModules, "exclude-modules", opts.ExcludeModules, "Exclude resources from these modules, supports glob patterns (env: TERRAMAID_EXCLUDE_MODULES)")
 
 	// Disable auto-generated string from documentation so that documentation is cleanly built and updated
 	runCmd.DisableAutoGenTag = true
