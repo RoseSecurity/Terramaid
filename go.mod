@@ -16,7 +16,7 @@ require (
 	github.com/mattn/go-colorable v0.1.14
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/pflag v1.0.10
-	golang.org/x/mod v0.31.0
+	golang.org/x/mod v0.32.0
 )
 
 require (
