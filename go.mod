@@ -10,7 +10,7 @@ require (
 	github.com/briandowns/spinner v1.23.2
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/fatih/color v1.18.0
-	github.com/hashicorp/copywrite v0.24.1
+	github.com/hashicorp/copywrite v0.24.2
 	github.com/hashicorp/terraform-exec v0.24.0
 	github.com/jwalton/go-supportscolor v1.2.0
 	github.com/mattn/go-colorable v0.1.14
