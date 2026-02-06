@@ -8,7 +8,7 @@ pkgs.buildGoModule rec {
 
   subPackages = ["."];
 
-  excludedPackages = ["tools"];
+  goSum = ./go.sum;
 
   ldflags = ["-s" "-w" "-X=cmd.Version=${version}"];
 
