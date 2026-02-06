@@ -4,11 +4,9 @@ pkgs.buildGoModule rec {
   version = "2.6.2";
   src = ./.;
 
-  vendorHash = "sha256-CfUrdpNkjkmXO09eyDDWmYNy7vDGXxQCiKmPI3uo96s=";
+  vendorHash = "sha256-ZnYGyoKYnx9inSA2FryFds5jAf3L45nAsgm5ElXtv9Y=";
 
   subPackages = ["."];
-
-  goSum = ./go.sum;
 
   ldflags = ["-s" "-w" "-X=cmd.Version=${version}"];
 
