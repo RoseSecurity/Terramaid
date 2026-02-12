@@ -10,7 +10,7 @@ require (
 	github.com/briandowns/spinner v1.23.2
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/fatih/color v1.18.0
-	github.com/hashicorp/copywrite v0.24.2
+	github.com/hashicorp/copywrite v0.25.0
 	github.com/hashicorp/terraform-exec v0.24.0
 	github.com/jwalton/go-supportscolor v1.2.0
 	github.com/mattn/go-colorable v0.1.14
@@ -68,7 +68,6 @@ require (
 	go.mongodb.org/mongo-driver v1.10.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/crypto v0.45.0 // indirect
-	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
 	golang.org/x/oauth2 v0.30.0 // indirect
 	golang.org/x/sync v0.18.0 // indirect
 	golang.org/x/sys v0.38.0 // indirect
