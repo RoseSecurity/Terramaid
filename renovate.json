@@ -4,15 +4,6 @@
   ],
   "packageRules": [
     {
-      "description": "Update Go Dependencies",
-      "matchManagers": [
-        "gomod"
-      ],
-      "schedule": [
-        "at any time"
-      ]
-    },
-    {
       "description": "Update Docker Dependencies",
       "matchManagers": [
         "dockerfile"
