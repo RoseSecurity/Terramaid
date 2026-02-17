@@ -48,7 +48,7 @@ func init() {
 
 	if prefixes := os.Getenv("TERRAMAID_RESOURCE_TYPE_PREFIXES"); prefixes != "" {
 		// Normalize: trim spaces and drop empties
-		for _, p := range strings.Split(prefixes, ",") {
+		for p := range strings.SplitSeq(prefixes, ",") {
 			p = strings.TrimSpace(p)
 			if p != "" {
 				customResourceTypePrefixes = append(customResourceTypePrefixes, p)
