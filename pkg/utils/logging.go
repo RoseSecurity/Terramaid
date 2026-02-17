@@ -48,7 +48,7 @@ func LogError(err error) {
 }
 
 // LogVerbose logs messages in verbose mode
-func LogVerbose(format string, a ...interface{}) {
+func LogVerbose(format string, a ...any) {
 	c := color.New(color.FgBlue)
 	message := fmt.Sprintf(format, a...)
 	c.Fprintf(color.Output, "[VERBOSE] %s\n", message)
