@@ -167,7 +167,7 @@ func generateDiagrams(ctx context.Context, opts *options) error {
 	if opts.Verbose {
 		utils.LogVerbose("Writing Mermaid diagram to %s", opts.Output)
 	}
-	if err := os.WriteFile(opts.Output, []byte(mermaidDiagram), 0o644); err != nil {
+	if err := os.WriteFile(opts.Output, []byte(mermaidDiagram), 0o600); err != nil {
 		return fmt.Errorf("error writing to file: %w", err)
 	}
 

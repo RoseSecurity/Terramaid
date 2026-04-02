@@ -401,10 +401,10 @@ func GenerateMermaidFlowchart(ctx context.Context, graph *gographviz.Graph, dire
 	}
 
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("```mermaid\nflowchart %s\n", direction))
+	fmt.Fprintf(os.Stdout, "```mermaid\nflowchart %s\n", direction)
 
 	if subgraphName != "" {
-		sb.WriteString(fmt.Sprintf("    subgraph %s\n", subgraphName))
+		fmt.Fprintf(&sb, "    subgraph %s\n", subgraphName)
 	}
 
 	addedNodes := make(map[string]string)
@@ -446,7 +446,7 @@ func GenerateMermaidFlowchart(ctx context.Context, graph *gographviz.Graph, dire
 		}
 
 		if _, exists := addedNodes[nodeID]; !exists {
-			sb.WriteString(fmt.Sprintf("        %s[\"%s\"]\n", nodeID, nodeLabel))
+			fmt.Fprintf(&sb, "        %s[\"%s\"]\n", nodeID, nodeLabel)
 			addedNodes[nodeID] = nodeLabel
 			if verbose && !strings.HasPrefix(nodeLabel, "provider:") {
 				utils.LogVerbose("Added node: %s", nodeID)
@@ -496,7 +496,7 @@ func GenerateMermaidFlowchart(ctx context.Context, graph *gographviz.Graph, dire
 
 		// Add source node if not already added and passes filters
 		if _, exists := addedNodes[fromID]; !exists && fromIncluded && fromLabel != "" {
-			sb.WriteString(fmt.Sprintf("        %s[\"%s\"]\n", fromID, fromLabel))
+			fmt.Fprintf(&sb, "        %s[\"%s\"]\n", fromID, fromLabel)
 			addedNodes[fromID] = fromLabel
 			if verbose {
 				utils.LogVerbose("Added source node from edge: %s", fromID)
@@ -505,7 +505,7 @@ func GenerateMermaidFlowchart(ctx context.Context, graph *gographviz.Graph, dire
 
 		// Add destination node if not already added and passes filters
 		if _, exists := addedNodes[toID]; !exists && toIncluded && toLabel != "" {
-			sb.WriteString(fmt.Sprintf("        %s[\"%s\"]\n", toID, toLabel))
+			fmt.Fprintf(&sb, "        %s[\"%s\"]\n", toID, toLabel)
 			addedNodes[toID] = toLabel
 			if verbose {
 				utils.LogVerbose("Added destination node from edge: %s", toID)
@@ -520,7 +520,7 @@ func GenerateMermaidFlowchart(ctx context.Context, graph *gographviz.Graph, dire
 			continue
 		}
 
-		sb.WriteString(fmt.Sprintf("    %s --> %s\n", fromID, toID))
+		fmt.Fprintf(&sb, "    %s --> %s\n", fromID, toID)
 		if verbose {
 			utils.LogVerbose("Added edge: %s --> %s", fromID, toID)
 		}

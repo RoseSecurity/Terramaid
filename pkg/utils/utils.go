@@ -26,13 +26,13 @@ type Spinner struct {
 	s *spinner.Spinner
 }
 
-// Check if a directory exists
+// DirExists checks if a directory exists.
 func DirExists(dir string) bool {
 	_, err := os.Stat(dir)
 	return !os.IsNotExist(err)
 }
 
-// Check if Terraform files exist in a directory
+// TerraformFilesExist checks if Terraform files exist in a directory.
 func TerraformFilesExist(dir string) (bool, error) {
 	validExtensions := []string{".tf", ".tf.json", ".tftest.hcl", ".tftest.json", "terraform.tfvars", "terraform.tfvars.json"}
 
@@ -56,10 +56,10 @@ func TerraformFilesExist(dir string) (bool, error) {
 	return found, nil
 }
 
-// Initialize a new spinner
+// NewSpinner initializes a new spinner.
 func NewSpinner(text string) *Spinner {
 	s := spinner.New(spinner.CharSets[14], 100*time.Millisecond)
-	s.Color("blue")
+	_ = s.Color("blue")
 	s.Writer = colorable.NewColorableStdout() // Ensure colors are supported on Windows
 	s.Suffix = " " + text
 	return &Spinner{s: s}
