@@ -4,7 +4,7 @@ pkgs.buildGoModule rec {
   version = "2.6.2";
   src = ./.;
 
-  vendorHash = "sha256-ZnYGyoKYnx9inSA2FryFds5jAf3L45nAsgm5ElXtv9Y=";
+  vendorHash = "sha256-rLIqrNgx8Vk4ijdSwGn5ye+6QYjiUYZ5zyogGx+fd/E=";
 
   subPackages = ["."];
 
