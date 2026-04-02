@@ -1,6 +1,7 @@
 // Copyright (c) RoseSecurity
 // SPDX-License-Identifier: Apache-2.0
 
+// Package cmd provides the CLI utility and commands for Terramaid.
 package cmd
 
 import (
@@ -23,7 +24,7 @@ var rootCmd = &cobra.Command{
 		if err != nil {
 			u.LogErrorAndExit(err)
 		}
-		cmd.Help()
+		_ = cmd.Help()
 	},
 }
 
