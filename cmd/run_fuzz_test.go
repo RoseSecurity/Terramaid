@@ -27,7 +27,7 @@ func FuzzRun(f *testing.F) {
 		os.Setenv("TERRAMAID_TF_BINARY", "/bin/true")
 
 		tmpDir, _ := os.MkdirTemp("", "tf")
-		_ = os.WriteFile(tmpDir+"/main.tf", []byte("terraform {}"), 0o644)
+		_ = os.WriteFile(tmpDir+"/main.tf", []byte("terraform {}"), 0o600)
 		defer os.RemoveAll(tmpDir)
 
 		hasWD := false

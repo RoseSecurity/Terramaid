@@ -12,6 +12,6 @@ import (
 // iteration starts with clean flag state.
 func NewRunCmd() *cobra.Command {
 	clone := *runCmd // shallow‑copy the definition
-	clone.Flags().VisitAll(func(f *pflag.Flag) { f.Value.Set(f.DefValue) })
+	clone.Flags().VisitAll(func(f *pflag.Flag) { _ = f.Value.Set(f.DefValue) })
 	return &clone
 }
