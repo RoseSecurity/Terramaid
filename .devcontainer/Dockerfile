@@ -10,7 +10,7 @@ FROM mcr.microsoft.com/vscode/devcontainers/base:debian@sha256:aa263c6fdd7c1bc99
 
 # Install required packages
 RUN apt-get update && \
-    apt-get install -y apt-utils ca-certificates curl unzip zsh-autosuggestions 
+    apt-get install -y apt-utils ca-certificates curl unzip zsh-autosuggestions
 
 # Change shell to zsh
 RUN chsh -s /bin/zsh vscode
@@ -30,4 +30,3 @@ COPY --from=build /go/bin/terramaid /usr/local/bin/terramaid
 
 # Install the rootfs/ configurations
 COPY rootfs/ /
-

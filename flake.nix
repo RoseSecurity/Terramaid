@@ -10,7 +10,7 @@
       {
         packages.default = import ./default.nix { inherit pkgs; };
       }) // {
-        overlays.default = final: prev: { 
+        overlays.default = final: prev: {
           terramaid = import ./default.nix { pkgs = final; };
         };
       };

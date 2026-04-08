@@ -9,4 +9,3 @@ output "subnet_ids" {
 output "nsg_name" {
   value = azurerm_network_security_group.nsg.name
 }
-
