@@ -93,4 +93,3 @@ resource "azurerm_network_security_group" "nsg" {
     destination_address_prefix = "*"
   }
 }
-

@@ -17,11 +17,11 @@ To help me better understand the nature and scope of the issue, please include a
 
 > [!NOTE]
 > **Bug Bounties**
-> 
+>
 > RoseSecurity **does not** provide bug bounties for vulnerability disclosures.
 >
 > As an open-source contributor, I release projects for free under a permissive license, encouraging community contributions.
-> 
+>
 
 After you submit a report, I will:
 - Respond to your report within 48 hours to acknowledge receipt.
