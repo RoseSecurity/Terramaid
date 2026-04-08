@@ -15,7 +15,7 @@ import (
 	"golang.org/x/mod/semver"
 )
 
-// Placeholder for builds
+// Version placeholder for builds. The version is injected via ldflags by GoReleaser.
 var Version = "1.0.0"
 
 type Release struct {
