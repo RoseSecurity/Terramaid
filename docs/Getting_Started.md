@@ -13,4 +13,3 @@ terramaid --subgraph-name Demo --direction LR --output Terramaid_Demo.md
 ```sh
 cat Terramaid_Demo.md
 ```
-

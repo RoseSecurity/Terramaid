@@ -19,4 +19,3 @@ project {
     ".goreleaser.yml",
   ]
 }
-

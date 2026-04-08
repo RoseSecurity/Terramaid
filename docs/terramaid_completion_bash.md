@@ -46,4 +46,3 @@ terramaid completion bash
 ### SEE ALSO
 
 * [terramaid completion](terramaid_completion.md)	 - Generate the autocompletion script for the specified shell
-
