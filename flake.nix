@@ -37,7 +37,9 @@
     })
     // {
       overlays.default = final: prev: {
-        terramaid = import ./default.nix {pkgs = final;};
+        terramaid = import ./default.nix {
+          pkgs = final.extend gomod2nix.overlays.default;
+        };
       };
     };
 }
