@@ -27,4 +27,3 @@ See each sub-command's help for details on how to use the generated script.
 * [terramaid completion fish](terramaid_completion_fish.md)	 - Generate the autocompletion script for fish
 * [terramaid completion powershell](terramaid_completion_powershell.md)	 - Generate the autocompletion script for powershell
 * [terramaid completion zsh](terramaid_completion_zsh.md)	 - Generate the autocompletion script for zsh
-
