@@ -25,9 +25,6 @@
       };
       callPackage = pkgs.callPackage;
     in {
-      # packages.default = import ./default.nix {
-      #   inherit pkgs;
-      # };
       packages.default = callPackage ./. {
         inherit (gomod2nix.legacyPackages.${system}) buildGoApplication;
       };
