@@ -1,4 +1,38 @@
 schema = 3
+cachePackages = [
+  'github.com/apparentlymart/go-textseg/v15/textseg',
+  'github.com/arsham/figurine/figurine',
+  'github.com/arsham/rainbow/rainbow',
+  'github.com/awalterschulze/gographviz',
+  'github.com/awalterschulze/gographviz/ast',
+  'github.com/briandowns/spinner',
+  'github.com/caarlos0/env/v11',
+  'github.com/common-nighthawk/go-figure',
+  'github.com/cpuguy83/go-md2man/v2/md2man',
+  'github.com/fatih/color',
+  'github.com/hashicorp/go-version',
+  'github.com/hashicorp/terraform-exec/tfexec',
+  'github.com/hashicorp/terraform-json',
+  'github.com/jwalton/go-supportscolor',
+  'github.com/jwalton/go-supportscolor/pkg/hasFlag',
+  'github.com/mattn/go-colorable',
+  'github.com/mattn/go-isatty',
+  'github.com/pkg/errors',
+  'github.com/russross/blackfriday/v2',
+  'github.com/spf13/cobra',
+  'github.com/spf13/cobra/doc',
+  'github.com/spf13/pflag',
+  'github.com/zclconf/go-cty/cty',
+  'github.com/zclconf/go-cty/cty/ctymarks',
+  'github.com/zclconf/go-cty/cty/ctystrings',
+  'github.com/zclconf/go-cty/cty/set',
+  'go.yaml.in/yaml/v3',
+  'golang.org/x/mod/semver',
+  'golang.org/x/sys/unix',
+  'golang.org/x/term',
+  'golang.org/x/text/transform',
+  'golang.org/x/text/unicode/norm'
+]
 
 [mod]
   [mod.'github.com/AlecAivazis/survey/v2']

@@ -19,15 +19,15 @@ buildGoApplication rec {
   pwd = ./.;
   src = ./.;
   modules = ./gomod2nix.toml;
-
-  vendorHash = "sha256-rLIqrNgx8Vk4ijdSwGn5ye+6QYjiUYZ5zyogGx+fd/E=";
+  CGO_ENABLED = 0;
+  env.GOTOOLCHAIN = "local";
 
   subPackages = ["."];
 
   ldflags = ["-s" "-w" "-X=cmd.Version=${version}"];
 
-  meta = {
-    description = "A utility for generating Mermaid diagrams from Terraform configurations";
-    homepage = "https://github.com/RoseSecurity/Terramaid";
-  };
+  # meta = {
+  #   description = "A utility for generating Mermaid diagrams from Terraform configurations";
+  #   homepage = "https://github.com/RoseSecurity/Terramaid";
+  # };
 }

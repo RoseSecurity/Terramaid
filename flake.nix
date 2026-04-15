@@ -21,6 +21,7 @@
     flake-utils.lib.eachDefaultSystem (system: let
       pkgs = import nixpkgs {
         inherit system;
+        overlays = [gomod2nix.overlays.default];
       };
       callPackage = pkgs.callPackage;
     in {
