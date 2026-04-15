@@ -26,8 +26,8 @@ buildGoApplication rec {
 
   ldflags = ["-s" "-w" "-X=cmd.Version=${version}"];
 
-  # meta = {
-  #   description = "A utility for generating Mermaid diagrams from Terraform configurations";
-  #   homepage = "https://github.com/RoseSecurity/Terramaid";
-  # };
+  meta = {
+    description = "A utility for generating Mermaid diagrams from Terraform configurations";
+    homepage = "https://github.com/RoseSecurity/Terramaid";
+  };
 }
