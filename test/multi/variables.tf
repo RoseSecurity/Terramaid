@@ -9,4 +9,3 @@ variable "consent_store_name" {
   description = "Consent store name for GCP"
   default     = "my-consent-store"
 }
-
