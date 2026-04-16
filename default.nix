@@ -24,7 +24,7 @@ buildGoApplication rec {
 
   subPackages = ["."];
 
-  ldflags = ["-s" "-w" "-X=cmd.Version=${version}"];
+  ldflags = ["-s" "-w" "-X=github.com/RoseSecurity/terramaid/cmd.Version=${version}"];
 
   meta = {
     description = "A utility for generating Mermaid diagrams from Terraform configurations";
