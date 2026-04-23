@@ -6,7 +6,7 @@ FROM golang:1.25@sha256:5a79b94c34c299ac0361fbb7c7fca6dc552e166b42341050323fa3ab
 # Install Terramaid
 RUN go install github.com/RoseSecurity/terramaid@latest
 
-FROM mcr.microsoft.com/vscode/devcontainers/base:debian@sha256:aa263c6fdd7c1bc990eead3922224fe8afbf5d85eaf3b6b9260786ab94d74933
+FROM mcr.microsoft.com/vscode/devcontainers/base:debian@sha256:e389149057371298eaeb72e736fc2c4dcb79974de222dd471d2e6d675d2f61c4
 
 # Install required packages
 RUN apt-get update && \
