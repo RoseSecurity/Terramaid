@@ -1,4 +1,4 @@
-// Copyright (c) RoseSecurity
+// Copyright RoseSecurity 2024, 2026
 // SPDX-License-Identifier: Apache-2.0
 
 package cmd
@@ -12,7 +12,9 @@ import (
 
 	"github.com/RoseSecurity/terramaid/internal"
 	"github.com/RoseSecurity/terramaid/pkg/utils"
+	"github.com/awalterschulze/gographviz"
 	"github.com/caarlos0/env/v11"
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
@@ -58,6 +60,30 @@ var runCmd = &cobra.Command{
 // applies filtering options from opts, generates the Mermaid flowchart, and writes the resulting diagram to the specified file.
 // It returns an error if the context is cancelled, validation fails, the Terraform binary cannot be found, parsing or diagram generation fails, or writing the output fails.
 func generateDiagrams(ctx context.Context, opts *options) error {
+	logRunOptions(opts)
+
+	if err := validateRun(ctx, opts); err != nil {
+		return err
+	}
+
+	if err := configureTerraformBinary(opts); err != nil {
+		return err
+	}
+
+	graph, err := parseTerraform(ctx, opts)
+	if err != nil {
+		return err
+	}
+
+	mermaidDiagram, err := generateMermaid(ctx, graph, opts)
+	if err != nil {
+		return err
+	}
+
+	return writeMermaid(opts, mermaidDiagram)
+}
+
+func logRunOptions(opts *options) {
 	if opts.Verbose {
 		utils.LogVerbose("Starting Terramaid with the following options:")
 		utils.LogVerbose("- Working Directory: %s", opts.WorkingDir)
@@ -84,8 +110,9 @@ func generateDiagrams(ctx context.Context, opts *options) error {
 			utils.LogVerbose("- Exclude Modules: %v", opts.ExcludeModules)
 		}
 	}
+}
 
-	// Early cancellation check
+func validateRun(ctx context.Context, opts *options) error {
 	select {
 	case <-ctx.Done():
 		return ctx.Err()
@@ -95,10 +122,10 @@ func generateDiagrams(ctx context.Context, opts *options) error {
 	if opts.WorkingDir != "" {
 		exists, err := utils.TerraformFilesExist(opts.WorkingDir)
 		if err != nil {
-			return fmt.Errorf("error checking Terraform files in directory \"%s\": %v", opts.WorkingDir, err)
+			return fmt.Errorf("%w %q: %w", errCheckTerraformFiles, opts.WorkingDir, err)
 		}
 		if !exists {
-			return fmt.Errorf("terraform files do not exist in directory \"%s\"", opts.WorkingDir)
+			return fmt.Errorf("%w %q", errTerraformFilesDoNotExist, opts.WorkingDir)
 		}
 		if opts.Verbose {
 			utils.LogVerbose("Confirmed Terraform files exist in %s", opts.WorkingDir)
@@ -107,10 +134,13 @@ func generateDiagrams(ctx context.Context, opts *options) error {
 
 	// Validate directories and files
 	if opts.WorkingDir != "" && !utils.DirExists(opts.WorkingDir) {
-		return fmt.Errorf("terraform directory \"%s\" does not exist", opts.WorkingDir)
+		return fmt.Errorf("%w %q", errTerraformDirectoryMissing, opts.WorkingDir)
 	}
 
-	// Check for Terraform binary
+	return nil
+}
+
+func configureTerraformBinary(opts *options) error {
 	if opts.TFBinary == "" {
 		tfBinary, err := exec.LookPath("terraform")
 		if err != nil {
@@ -122,6 +152,10 @@ func generateDiagrams(ctx context.Context, opts *options) error {
 		}
 	}
 
+	return nil
+}
+
+func parseTerraform(ctx context.Context, opts *options) (*gographviz.Graph, error) {
 	// Spinner initialization and graph parsing
 	sp := utils.NewSpinner("Generating Terramaid Diagrams")
 	sp.Start()
@@ -133,15 +167,18 @@ func generateDiagrams(ctx context.Context, opts *options) error {
 
 	graph, err := internal.ParseTerraform(ctx, opts.WorkingDir, opts.TFBinary, opts.TFPlan, opts.Verbose)
 	if err != nil {
-		return fmt.Errorf("error parsing Terraform: %w", err)
+		return nil, fmt.Errorf("error parsing Terraform: %w", err)
 	}
 
 	// Respect context cancellation after heavy parsing
 	if err := ctx.Err(); err != nil {
-		return err
+		return nil, err
 	}
 
-	// Generate the Mermaid diagram
+	return graph, nil
+}
+
+func generateMermaid(ctx context.Context, graph *gographviz.Graph, opts *options) (string, error) {
 	if opts.Verbose {
 		utils.LogVerbose("Generating Mermaid flowchart...")
 	}
@@ -156,14 +193,17 @@ func generateDiagrams(ctx context.Context, opts *options) error {
 
 	mermaidDiagram, err := internal.GenerateMermaidFlowchart(ctx, graph, opts.Direction, opts.SubgraphName, opts.ResourcesOnly, filter, opts.Verbose)
 	if err != nil {
-		return fmt.Errorf("error generating Mermaid diagram: %w", err)
+		return "", fmt.Errorf("error generating Mermaid diagram: %w", err)
 	}
 
 	if err := ctx.Err(); err != nil {
-		return err
+		return "", err
 	}
 
-	// Write the Mermaid diagram to the specified output file
+	return mermaidDiagram, nil
+}
+
+func writeMermaid(opts *options, mermaidDiagram string) error {
 	if opts.Verbose {
 		utils.LogVerbose("Writing Mermaid diagram to %s", opts.Output)
 	}
@@ -171,7 +211,7 @@ func generateDiagrams(ctx context.Context, opts *options) error {
 		return fmt.Errorf("error writing to file: %w", err)
 	}
 
-	fmt.Printf("\nMermaid diagram successfully written to %s\n", opts.Output)
+	color.New(color.FgGreen).Fprintf(color.Output, "\nMermaid diagram successfully written to %s\n", opts.Output)
 
 	return nil
 }
@@ -181,7 +221,7 @@ func generateDiagrams(ctx context.Context, opts *options) error {
 func init() {
 	// Parse environment variables first, then bind flags to the opts struct
 	if err := env.ParseWithOptions(&opts, env.Options{Prefix: "TERRAMAID_"}); err != nil {
-		fmt.Printf("Error parsing environment variables: %s\n", err.Error())
+		utils.LogError(fmt.Errorf("error parsing environment variables: %w", err))
 	}
 
 	// Bind flags to the opts struct
