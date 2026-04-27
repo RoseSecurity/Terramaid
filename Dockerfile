@@ -1,4 +1,4 @@
-# Copyright (c) RoseSecurity
+# Copyright RoseSecurity 2024, 2026
 # SPDX-License-Identifier: Apache-2.0
 
 FROM golang:alpine@sha256:f6751d823c26342f9506c03797d2527668d095b0a15f1862cddb4d927a7a4ced AS builder

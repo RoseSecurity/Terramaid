@@ -1,4 +1,4 @@
-// Copyright (c) RoseSecurity
+// Copyright RoseSecurity 2024, 2026
 // SPDX-License-Identifier: Apache-2.0
 
 package utils
@@ -65,13 +65,13 @@ func NewSpinner(text string) *Spinner {
 	return &Spinner{s: s}
 }
 
-// Start the spinner
+// Start the spinner.
 func (sp *Spinner) Start() {
-	fmt.Printf("%s%s%s ", ColorBold+ColorGreen, sp.s.Suffix, ColorReset)
+	_, _ = fmt.Fprintf(colorable.NewColorableStdout(), "%s%s%s ", ColorBold+ColorGreen, sp.s.Suffix, ColorReset)
 	sp.s.Start()
 }
 
-// Stop the spinner
+// Stop the spinner.
 func (sp *Spinner) Stop() {
 	sp.s.Stop()
 }

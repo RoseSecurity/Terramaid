@@ -1,4 +1,4 @@
-// Copyright (c) RoseSecurity
+// Copyright RoseSecurity 2024, 2026
 // SPDX-License-Identifier: Apache-2.0
 
 package cmd
@@ -28,7 +28,7 @@ var versionCmd = &cobra.Command{
 	Long:    `This command prints the CLI version`,
 	Example: "terramaid version",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("terramaid: " + Version)
+		color.New().Fprintln(color.Output, "terramaid: "+Version)
 		latestReleaseTag, err := latestRelease()
 		if err == nil && latestReleaseTag != "" {
 			latestRelease := strings.TrimPrefix(latestReleaseTag, "v")
@@ -40,7 +40,7 @@ var versionCmd = &cobra.Command{
 	},
 }
 
-// Fetch latest release for comparison to current version
+// Fetch latest release for comparison to current version.
 func latestRelease() (string, error) {
 	resp, err := http.Get("https://api.github.com/repos/RoseSecurity/Terramaid/releases/latest")
 	if err != nil {
@@ -49,7 +49,7 @@ func latestRelease() (string, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("failed to fetch version: HTTP %d", resp.StatusCode)
+		return "", fmt.Errorf("%w: HTTP %d", errFetchVersionHTTPStatus, resp.StatusCode)
 	}
 
 	body, err := io.ReadAll(resp.Body)
@@ -65,7 +65,7 @@ func latestRelease() (string, error) {
 	return release.TagName, nil
 }
 
-// Display out of date warning
+// Display out of date warning.
 func updateTerramaid(latestVersion string) {
 	c1 := color.New(color.FgCyan)
 
