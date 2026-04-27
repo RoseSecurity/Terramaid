@@ -1,18 +1,106 @@
 version: "2"
+run:
+  tests: true
+output:
+  formats:
+    text:
+      path: stderr
 linters:
-  default: none
   enable:
-    - errcheck
-    - goconst
+    - bodyclose
+    - err113
+    - forbidigo
+    - gocognit
     - gocritic
+    - godot
     - gosec
-    - govet
-    - ineffassign
+    - importas
+    - loggercheck
     - misspell
-    - nolintlint
-    - staticcheck
+    - nestif
+    - nilerr
+    - rowserrcheck
+    - tparallel
     - unconvert
-    - unused
+    - unparam
+    - whitespace
+  settings:
+    gocognit:
+      min-complexity: 20
+    gocritic:
+      enabled-checks:
+        - commentedOutCode
+        - emptyDecl
+        - filepathJoin
+        - commentedOutImport
+        - initClause
+        - nestingReduce
+        - preferFilepathJoin
+    godot:
+      capital: true
+      period: true
+    gosec:
+      excludes:
+        - G101
+    importas:
+      alias:
+        - pkg: github.com/charmbracelet/log
+          alias: log
+      no-unaliased: true
+      no-extra-aliases: false
+    lll:
+      line-length: 120
+      tab-width: 4
+    loggercheck:
+      kitlog: false
+      klog: false
+      logr: false
+      slog: false
+      zap: false
+      require-string-key: true
+      no-printf-like: true
+    nestif:
+      min-complexity: 7
+    revive:
+      rules:
+        - name: banned-characters
+          arguments:
+            - goto
+        - name: error-strings
+          arguments:
+            - disallow-newlines: true
+        - name: file-length-limit
+          arguments:
+            - max: 500
+              skipBlankLines: true
+              skipComments: true
+        - name: function-length
+          arguments:
+            - 50
+            - 60
+        - name: cognitive-complexity
+          arguments:
+            - 25
+        - name: add-constant
+          arguments:
+            - allowFloats: 0.0,0.,1.0,1.,2.0,2.
+              allowInts: 0,1,2,3,4
+              allowStrs: '""'
+              maxLitCount: "3"
+        - name: argument-limit
+          arguments:
+            - 5
+        - name: deep-exit
+        - name: early-return
+        - name: comment-spacings
+          arguments:
+            - mypragma
+            - otherpragma
+          severity: warning
+          disabled: false
+          exclude:
+            - ""
+        - name: var-declaration
   exclusions:
     generated: lax
     presets:
@@ -20,17 +108,33 @@ linters:
       - common-false-positives
       - legacy
       - std-error-handling
+    rules:
+      - linters:
+          - funlen
+          - revive
+          - gocognit
+        path: _test\.go$
     paths:
       - third_party$
       - builtin$
       - examples$
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
 formatters:
   enable:
-    - gofmt
+    - gofumpt
     - goimports
+  settings:
+    gofmt:
+      simplify: true
+      rewrite-rules:
+        - pattern: interface{}
+          replacement: any
   exclusions:
     generated: lax
     paths:
       - third_party$
       - builtin$
       - examples$
+      - _test\.go$

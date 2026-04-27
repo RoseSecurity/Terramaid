@@ -1,12 +1,10 @@
-// Copyright (c) RoseSecurity
+// Copyright RoseSecurity 2024, 2026
 // SPDX-License-Identifier: Apache-2.0
 
 // Package cmd provides the CLI utility and commands for Terramaid.
 package cmd
 
 import (
-	"fmt"
-
 	tuiUtils "github.com/RoseSecurity/terramaid/internal/tui/utils"
 	u "github.com/RoseSecurity/terramaid/pkg/utils"
 	"github.com/spf13/cobra"
@@ -19,7 +17,7 @@ var rootCmd = &cobra.Command{
 	SilenceErrors: true,
 	Run: func(cmd *cobra.Command, args []string) {
 		var err error
-		fmt.Println()
+		_, _ = cmd.OutOrStdout().Write([]byte("\n"))
 		err = tuiUtils.PrintStyledText("TERRAMAID")
 		if err != nil {
 			u.LogErrorAndExit(err)
