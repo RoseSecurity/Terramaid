@@ -16,21 +16,22 @@ import (
 
 var (
 	labelCleaner = regexp.MustCompile(`\s*\(expand\)|\s*\(close\)|\[root\]\s*|"`)
-	// Regex to match all problematic characters for Mermaid IDs in one pass
+	// Regex to match all problematic characters for Mermaid IDs in one pass.
 	mermaidUnsafeChars = regexp.MustCompile(`[()\[\]{}<>\s\-:;,!@#$%^&*+=|\\?\'"` + "`" + `~]+`)
-	// Regex to match multiple consecutive underscores
+	// Regex to match multiple consecutive underscores.
 	multipleUnderscores = regexp.MustCompile(`_+`)
-	// Optional, user-provided regex (via env TERRAMAID_RESOURCE_TYPE_REGEX) to classify resource types
+	// Optional, user-provided regex (via env TERRAMAID_RESOURCE_TYPE_REGEX) to classify resource types.
 	customResourceTypeMatcher *regexp.Regexp
-	// Optional, user-provided prefixes (via env TERRAMAID_RESOURCE_TYPE_PREFIXES, comma-separated)
+	// Optional, user-provided prefixes (via env TERRAMAID_RESOURCE_TYPE_PREFIXES, comma-separated).
 	customResourceTypePrefixes []string
-	// Built-in defaults for common/major provider resource type prefixes
+	// Built-in defaults for common/major provider resource type prefixes.
 	defaultResourceTypePrefixes = []string{
 		"aws", "azurerm", "google", "kubernetes", "helm",
 		"cloudflare", "datadog", "github", "gitlab", "digitalocean",
 		"linode", "openstack", "alicloud", "oci", "heroku",
 		"pagerduty", "random", "null", "tls",
 	}
+	validDirections = map[string]bool{"TB": true, "TD": true, "BT": true, "RL": true, "LR": true}
 )
 
 // init initializes package-level resource type customization from environment variables.
@@ -57,7 +58,7 @@ func init() {
 	}
 }
 
-// FilterConfig holds the configuration for filtering resources in the diagram
+// FilterConfig holds the configuration for filtering resources in the diagram.
 type FilterConfig struct {
 	IncludeTypes     []string // Include only these resource types (supports glob patterns)
 	ExcludeTypes     []string // Exclude these resource types (supports glob patterns)
@@ -65,7 +66,7 @@ type FilterConfig struct {
 	ExcludeModules   []string // Exclude resources from these modules
 }
 
-// IsEmpty returns true if no filters are configured
+// IsEmpty returns true if no filters are configured.
 func (f *FilterConfig) IsEmpty() bool {
 	return len(f.IncludeTypes) == 0 &&
 		len(f.ExcludeTypes) == 0 &&
@@ -73,7 +74,7 @@ func (f *FilterConfig) IsEmpty() bool {
 		len(f.ExcludeModules) == 0
 }
 
-// parseLabelComponents extracts the module path, resource type, and provider from a Terraform label
+// parseLabelComponents extracts the module path, resource type, and provider from a Terraform label.
 // Label formats:
 // - <type>.<name> (e.g., aws_instance.web)
 // - module.<mod>.<type>.<name> (e.g., module.vpc.aws_subnet.private)
@@ -152,78 +153,83 @@ func matchesAnyPattern(s string, patterns []string) bool {
 	return false
 }
 
-// ShouldInclude determines if a resource label should be included based on the filter configuration
+// ShouldInclude determines if a resource label should be included based on the filter configuration.
 func (f *FilterConfig) ShouldInclude(label string, verbose bool) bool {
-	// If no filters are configured, include everything
 	if f.IsEmpty() {
 		return true
 	}
 
 	modulePath, resourceType, provider := parseLabelComponents(label)
+	return f.includesModule(label, modulePath, verbose) &&
+		f.includesType(label, resourceType, verbose) &&
+		f.includesProvider(label, provider, verbose)
+}
 
-	// Check module exclusions first (exclusions take priority)
-	if len(f.ExcludeModules) > 0 && modulePath != "" {
-		for _, excludeModule := range f.ExcludeModules {
-			// Check if the module path contains or matches the excluded module
-			if strings.Contains(modulePath, excludeModule) || matchesGlobPattern(modulePath, excludeModule) {
-				if verbose {
-					utils.LogVerbose("Excluding %s: module %s matches exclude pattern %s", label, modulePath, excludeModule)
-				}
-				return false
-			}
-		}
+func (f *FilterConfig) includesModule(label string, modulePath string, verbose bool) bool {
+	if len(f.ExcludeModules) == 0 || modulePath == "" {
+		return true
 	}
 
-	// Check type exclusions
-	if len(f.ExcludeTypes) > 0 && resourceType != "" {
-		if matchesAnyPattern(resourceType, f.ExcludeTypes) {
+	for _, excludeModule := range f.ExcludeModules {
+		if strings.Contains(modulePath, excludeModule) || matchesGlobPattern(modulePath, excludeModule) {
 			if verbose {
-				utils.LogVerbose("Excluding %s: type %s matches exclude pattern", label, resourceType)
-			}
-			return false
-		}
-	}
-
-	// Check provider inclusions (if specified, only these providers are allowed)
-	if len(f.IncludeProviders) > 0 {
-		if provider == "" {
-			if verbose {
-				utils.LogVerbose("Excluding %s: no provider detected and provider filter is active", label)
-			}
-			return false
-		}
-		providerMatch := false
-		for _, includeProvider := range f.IncludeProviders {
-			if strings.EqualFold(provider, includeProvider) {
-				providerMatch = true
-				break
-			}
-		}
-		if !providerMatch {
-			if verbose {
-				utils.LogVerbose("Excluding %s: provider %s not in include list", label, provider)
-			}
-			return false
-		}
-	}
-
-	// Check type inclusions (if specified, only these types are allowed)
-	if len(f.IncludeTypes) > 0 {
-		if resourceType == "" {
-			if verbose {
-				utils.LogVerbose("Excluding %s: no resource type detected and type filter is active", label)
-			}
-			return false
-		}
-		if !matchesAnyPattern(resourceType, f.IncludeTypes) {
-			if verbose {
-				utils.LogVerbose("Excluding %s: type %s not in include list", label, resourceType)
+				utils.LogVerbose("Excluding %s: module %s matches exclude pattern %s", label, modulePath, excludeModule)
 			}
 			return false
 		}
 	}
 
 	return true
+}
+
+func (f *FilterConfig) includesType(label string, resourceType string, verbose bool) bool {
+	if len(f.ExcludeTypes) > 0 && resourceType != "" && matchesAnyPattern(resourceType, f.ExcludeTypes) {
+		if verbose {
+			utils.LogVerbose("Excluding %s: type %s matches exclude pattern", label, resourceType)
+		}
+		return false
+	}
+
+	if len(f.IncludeTypes) == 0 {
+		return true
+	}
+	if resourceType == "" {
+		if verbose {
+			utils.LogVerbose("Excluding %s: no resource type detected and type filter is active", label)
+		}
+		return false
+	}
+	if !matchesAnyPattern(resourceType, f.IncludeTypes) {
+		if verbose {
+			utils.LogVerbose("Excluding %s: type %s not in include list", label, resourceType)
+		}
+		return false
+	}
+
+	return true
+}
+
+func (f *FilterConfig) includesProvider(label string, provider string, verbose bool) bool {
+	if len(f.IncludeProviders) == 0 {
+		return true
+	}
+	if provider == "" {
+		if verbose {
+			utils.LogVerbose("Excluding %s: no provider detected and provider filter is active", label)
+		}
+		return false
+	}
+
+	for _, includeProvider := range f.IncludeProviders {
+		if strings.EqualFold(provider, includeProvider) {
+			return true
+		}
+	}
+
+	if verbose {
+		utils.LogVerbose("Excluding %s: provider %s not in include list", label, provider)
+	}
+	return false
 }
 
 // CleanID removes inline annotations and provider wrappers from an identifier, replaces dot and path separators with underscores, and returns a sanitized Mermaid-compatible identifier.
@@ -368,171 +374,200 @@ func isResourceLabel(label string) bool {
 // When verbose is true the function emits progress messages via the utils logger.
 // It returns the complete Mermaid diagram as a string or an error if validation fails.
 func GenerateMermaidFlowchart(ctx context.Context, graph *gographviz.Graph, direction string, subgraphName string, resourcesOnly bool, filter *FilterConfig, verbose bool) (string, error) {
-	validDirections := map[string]bool{"TB": true, "TD": true, "BT": true, "RL": true, "LR": true}
 	if !validDirections[direction] {
-		return "", fmt.Errorf("invalid direction %s: valid options are TB, TD, BT, RL, LR", direction)
+		return "", fmt.Errorf("%w %s: valid options are TB, TD, BT, RL, LR", errInvalidDirection, direction)
 	}
 
-	// Initialize filter if nil to avoid nil pointer checks
-	if filter == nil {
-		filter = &FilterConfig{}
-	}
-
-	if verbose {
-		utils.LogVerbose("Generating Mermaid flowchart with direction: %s", direction)
-		if subgraphName != "" {
-			utils.LogVerbose("Using subgraph name: %s", subgraphName)
-		}
-		if !filter.IsEmpty() {
-			utils.LogVerbose("Filter configuration active:")
-			if len(filter.IncludeTypes) > 0 {
-				utils.LogVerbose("  - Include types: %v", filter.IncludeTypes)
-			}
-			if len(filter.ExcludeTypes) > 0 {
-				utils.LogVerbose("  - Exclude types: %v", filter.ExcludeTypes)
-			}
-			if len(filter.IncludeProviders) > 0 {
-				utils.LogVerbose("  - Include providers: %v", filter.IncludeProviders)
-			}
-			if len(filter.ExcludeModules) > 0 {
-				utils.LogVerbose("  - Exclude modules: %v", filter.ExcludeModules)
-			}
-		}
-	}
+	filter = normalizeFilter(filter)
+	logFlowchartOptions(direction, subgraphName, filter, verbose)
 
 	var sb strings.Builder
-	fmt.Fprintf(os.Stdout, "```mermaid\nflowchart %s\n", direction)
+	fmt.Fprintf(&sb, "```mermaid\nflowchart %s\n", direction)
 
 	if subgraphName != "" {
 		fmt.Fprintf(&sb, "    subgraph %s\n", subgraphName)
 	}
 
-	addedNodes := make(map[string]string)
-	addedProviders := make(map[string]bool)
+	state := flowchartState{
+		addedNodes:     make(map[string]string),
+		addedProviders: make(map[string]bool),
+		resourcesOnly:  resourcesOnly,
+		filter:         filter,
+		verbose:        verbose,
+	}
+
+	state.appendNodes(&sb, graph)
+
+	if subgraphName != "" {
+		sb.WriteString("    end\n")
+	}
+
+	state.appendEdges(&sb, graph)
+
+	sb.WriteString("```\n")
 
 	if verbose {
+		nodeCount := len(state.addedNodes)
+		edgeCount := len(graph.Edges.Edges)
+		utils.LogVerbose("Mermaid diagram generation complete with %d nodes and %d edges", nodeCount, edgeCount)
+	}
+
+	return sb.String(), nil
+}
+
+type flowchartState struct {
+	addedNodes     map[string]string
+	addedProviders map[string]bool
+	resourcesOnly  bool
+	filter         *FilterConfig
+	verbose        bool
+}
+
+func normalizeFilter(filter *FilterConfig) *FilterConfig {
+	if filter == nil {
+		return &FilterConfig{}
+	}
+	return filter
+}
+
+func logFlowchartOptions(direction string, subgraphName string, filter *FilterConfig, verbose bool) {
+	if !verbose {
+		return
+	}
+
+	utils.LogVerbose("Generating Mermaid flowchart with direction: %s", direction)
+	if subgraphName != "" {
+		utils.LogVerbose("Using subgraph name: %s", subgraphName)
+	}
+	logFilterOptions(filter)
+}
+
+func logFilterOptions(filter *FilterConfig) {
+	if filter.IsEmpty() {
+		return
+	}
+
+	utils.LogVerbose("Filter configuration active:")
+	if len(filter.IncludeTypes) > 0 {
+		utils.LogVerbose("  - Include types: %v", filter.IncludeTypes)
+	}
+	if len(filter.ExcludeTypes) > 0 {
+		utils.LogVerbose("  - Exclude types: %v", filter.ExcludeTypes)
+	}
+	if len(filter.IncludeProviders) > 0 {
+		utils.LogVerbose("  - Include providers: %v", filter.IncludeProviders)
+	}
+	if len(filter.ExcludeModules) > 0 {
+		utils.LogVerbose("  - Exclude modules: %v", filter.ExcludeModules)
+	}
+}
+
+func (s *flowchartState) appendNodes(sb *strings.Builder, graph *gographviz.Graph) {
+	if s.verbose {
 		utils.LogVerbose("Processing %d nodes", len(graph.Nodes.Nodes))
 	}
 
 	for _, node := range graph.Nodes.Nodes {
 		nodeID := CleanID(node.Name)
 		nodeLabel := CleanLabel(node.Attrs["label"])
-
-		if nodeLabel == "" {
+		if !s.shouldAppendNode(nodeID, nodeLabel) {
 			continue
 		}
+		s.addNode(sb, nodeID, nodeLabel, "Added node: %s")
+	}
+}
 
-		if strings.HasPrefix(nodeLabel, "provider:") {
-			if addedProviders[nodeID] {
-				continue
-			}
-			addedProviders[nodeID] = true
-			if verbose {
-				utils.LogVerbose("Added provider node: %s", nodeID)
-			}
-		}
-
-		// If resourcesOnly is enabled, skip non-resource nodes
-		if resourcesOnly && !isResourceLabel(nodeLabel) {
-			if verbose {
-				utils.LogVerbose("Skipping non-resource node due to resourcesOnly: %s (%s)", nodeID, nodeLabel)
-			}
-			continue
-		}
-
-		// Apply custom filters
-		if !filter.ShouldInclude(nodeLabel, verbose) {
-			continue
-		}
-
-		if _, exists := addedNodes[nodeID]; !exists {
-			fmt.Fprintf(&sb, "        %s[\"%s\"]\n", nodeID, nodeLabel)
-			addedNodes[nodeID] = nodeLabel
-			if verbose && !strings.HasPrefix(nodeLabel, "provider:") {
-				utils.LogVerbose("Added node: %s", nodeID)
-			}
+func (s *flowchartState) shouldAppendNode(nodeID string, nodeLabel string) bool {
+	if nodeLabel == "" {
+		return false
+	}
+	if strings.HasPrefix(nodeLabel, "provider:") {
+		if !s.recordProvider(nodeID) {
+			return false
 		}
 	}
-
-	if subgraphName != "" {
-		sb.WriteString("    end\n")
+	if s.resourcesOnly && !isResourceLabel(nodeLabel) {
+		if s.verbose {
+			utils.LogVerbose("Skipping non-resource node due to resourcesOnly: %s (%s)", nodeID, nodeLabel)
+		}
+		return false
 	}
+	return s.filter.ShouldInclude(nodeLabel, s.verbose)
+}
 
-	if verbose {
+func (s *flowchartState) recordProvider(nodeID string) bool {
+	if s.addedProviders[nodeID] {
+		return false
+	}
+	s.addedProviders[nodeID] = true
+	if s.verbose {
+		utils.LogVerbose("Added provider node: %s", nodeID)
+	}
+	return true
+}
+
+func (s *flowchartState) appendEdges(sb *strings.Builder, graph *gographviz.Graph) {
+	if s.verbose {
 		utils.LogVerbose("Processing %d edges", len(graph.Edges.Edges))
 	}
 
 	for _, edge := range graph.Edges.Edges {
-		fromID := CleanID(edge.Src)
-		toID := CleanID(edge.Dst)
-		fromLabel := CleanLabel(graph.Nodes.Lookup[edge.Src].Attrs["label"])
-		toLabel := CleanLabel(graph.Nodes.Lookup[edge.Dst].Attrs["label"])
+		s.appendEdge(sb, graph, edge)
+	}
+}
 
-		// Check if source node should be included
-		fromIncluded := true
-		if fromLabel != "" {
-			if resourcesOnly && !isResourceLabel(fromLabel) {
-				fromIncluded = false
-				if verbose {
-					utils.LogVerbose("Skipping edge source (non-resource) due to resourcesOnly: %s", fromID)
-				}
-			} else if !filter.ShouldInclude(fromLabel, verbose) {
-				fromIncluded = false
-			}
-		}
+func (s *flowchartState) appendEdge(sb *strings.Builder, graph *gographviz.Graph, edge *gographviz.Edge) {
+	fromID := CleanID(edge.Src)
+	toID := CleanID(edge.Dst)
+	fromLabel := CleanLabel(graph.Nodes.Lookup[edge.Src].Attrs["label"])
+	toLabel := CleanLabel(graph.Nodes.Lookup[edge.Dst].Attrs["label"])
+	fromIncluded := s.includesEndpoint(fromID, fromLabel, "source")
+	toIncluded := s.includesEndpoint(toID, toLabel, "destination")
 
-		// Check if destination node should be included
-		toIncluded := true
-		if toLabel != "" {
-			if resourcesOnly && !isResourceLabel(toLabel) {
-				toIncluded = false
-				if verbose {
-					utils.LogVerbose("Skipping edge destination (non-resource) due to resourcesOnly: %s", toID)
-				}
-			} else if !filter.ShouldInclude(toLabel, verbose) {
-				toIncluded = false
-			}
-		}
+	s.addEdgeEndpointNode(sb, fromID, fromLabel, fromIncluded, "Added source node from edge: %s")
+	s.addEdgeEndpointNode(sb, toID, toLabel, toIncluded, "Added destination node from edge: %s")
 
-		// Add source node if not already added and passes filters
-		if _, exists := addedNodes[fromID]; !exists && fromIncluded && fromLabel != "" {
-			fmt.Fprintf(&sb, "        %s[\"%s\"]\n", fromID, fromLabel)
-			addedNodes[fromID] = fromLabel
-			if verbose {
-				utils.LogVerbose("Added source node from edge: %s", fromID)
-			}
+	if !fromIncluded || !toIncluded {
+		if s.verbose {
+			utils.LogVerbose("Skipping edge due to filtered endpoint(s): %s --> %s", fromID, toID)
 		}
-
-		// Add destination node if not already added and passes filters
-		if _, exists := addedNodes[toID]; !exists && toIncluded && toLabel != "" {
-			fmt.Fprintf(&sb, "        %s[\"%s\"]\n", toID, toLabel)
-			addedNodes[toID] = toLabel
-			if verbose {
-				utils.LogVerbose("Added destination node from edge: %s", toID)
-			}
-		}
-
-		// Skip edge if either endpoint is filtered out
-		if !fromIncluded || !toIncluded {
-			if verbose {
-				utils.LogVerbose("Skipping edge due to filtered endpoint(s): %s --> %s", fromID, toID)
-			}
-			continue
-		}
-
-		fmt.Fprintf(&sb, "    %s --> %s\n", fromID, toID)
-		if verbose {
-			utils.LogVerbose("Added edge: %s --> %s", fromID, toID)
-		}
+		return
 	}
 
-	sb.WriteString("```\n")
+	fmt.Fprintf(sb, "    %s --> %s\n", fromID, toID)
+	if s.verbose {
+		utils.LogVerbose("Added edge: %s --> %s", fromID, toID)
+	}
+}
 
-	if verbose {
-		nodeCount := len(addedNodes)
-		edgeCount := len(graph.Edges.Edges)
-		utils.LogVerbose("Mermaid diagram generation complete with %d nodes and %d edges", nodeCount, edgeCount)
+func (s *flowchartState) includesEndpoint(nodeID string, nodeLabel string, endpoint string) bool {
+	if nodeLabel == "" {
+		return true
+	}
+	if s.resourcesOnly && !isResourceLabel(nodeLabel) {
+		if s.verbose {
+			utils.LogVerbose("Skipping edge %s (non-resource) due to resourcesOnly: %s", endpoint, nodeID)
+		}
+		return false
+	}
+	return s.filter.ShouldInclude(nodeLabel, s.verbose)
+}
+
+func (s *flowchartState) addEdgeEndpointNode(sb *strings.Builder, nodeID string, nodeLabel string, included bool, logFormat string) {
+	if nodeLabel == "" || !included {
+		return
+	}
+	s.addNode(sb, nodeID, nodeLabel, logFormat)
+}
+
+func (s *flowchartState) addNode(sb *strings.Builder, nodeID string, nodeLabel string, logFormat string) {
+	if _, exists := s.addedNodes[nodeID]; exists {
+		return
 	}
 
-	return sb.String(), nil
+	fmt.Fprintf(sb, "        %s[\"%s\"]\n", nodeID, nodeLabel)
+	s.addedNodes[nodeID] = nodeLabel
+	if s.verbose && !strings.HasPrefix(nodeLabel, "provider:") {
+		utils.LogVerbose(logFormat, nodeID)
+	}
 }

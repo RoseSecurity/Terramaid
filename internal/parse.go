@@ -1,11 +1,10 @@
-// Copyright (c) RoseSecurity
+// Copyright RoseSecurity 2024, 2026
 // SPDX-License-Identifier: Apache-2.0
 
 package internal
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/RoseSecurity/terramaid/pkg/utils"
 	"github.com/awalterschulze/gographviz"
@@ -20,7 +19,7 @@ const emptyGraph = `digraph G {
 }
 `
 
-// ParseTerraform parses the Terraform plan and returns the generated graph
+// ParseTerraform parses the Terraform plan and returns the generated graph.
 func ParseTerraform(ctx context.Context, workingDir, tfPath, planFile string, verbose bool) (*gographviz.Graph, error) {
 	if verbose {
 		utils.LogVerbose("Initializing Terraform with working directory: %s", workingDir)
@@ -61,7 +60,7 @@ func ParseTerraform(ctx context.Context, workingDir, tfPath, planFile string, ve
 	}
 
 	if output == emptyGraph {
-		return nil, fmt.Errorf("no output from terraform graph")
+		return nil, errNoTerraformGraphData
 	}
 
 	if verbose {

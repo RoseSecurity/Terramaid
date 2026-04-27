@@ -1,4 +1,4 @@
-// Copyright (c) RoseSecurity
+// Copyright RoseSecurity 2024, 2026
 // SPDX-License-Identifier: Apache-2.0
 
 package cmd
@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra/doc"
 )
 
-// Generate documentation for Terramaid commands and output to docs directory
+// Generate documentation for Terramaid commands and output to docs directory.
 var docsCmd = &cobra.Command{
 	Use:          "docs",
 	Short:        "Generate documentation for the CLI",

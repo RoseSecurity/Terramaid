@@ -1,4 +1,4 @@
-// Copyright (c) RoseSecurity
+// Copyright RoseSecurity 2024, 2026
 // SPDX-License-Identifier: Apache-2.0
 
 package utils
@@ -19,7 +19,7 @@ const (
 	LogLevelWarning = "Warning"
 )
 
-// LogErrorAndExit logs errors to std.Error and exits with an error code
+// LogErrorAndExit logs errors to std.Error and exits with an error code.
 func LogErrorAndExit(err error) {
 	if err != nil {
 		LogError(err)
@@ -33,7 +33,7 @@ func LogErrorAndExit(err error) {
 	}
 }
 
-// LogError logs errors to std.Error
+// LogError logs errors to std.Error.
 func LogError(err error) {
 	if err != nil {
 		c := color.New(color.FgRed)
@@ -47,7 +47,7 @@ func LogError(err error) {
 	}
 }
 
-// LogVerbose logs messages in verbose mode
+// LogVerbose logs messages in verbose mode.
 func LogVerbose(format string, a ...any) {
 	c := color.New(color.FgBlue)
 	message := fmt.Sprintf(format, a...)
