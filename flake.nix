@@ -42,7 +42,11 @@
     // {
       overlays.default = final: prev: {
         terramaid = import ./default.nix {
-          pkgs = final.extend gomod2nix.overlays.default;
+          pkgs =
+            (final.extend gomod2nix.overlays.default).extend
+            (final: prev: {
+              go = nixpkgs-go.packages.${final.stdenv.hostPlatform.system}.go;
+            });
         };
       };
     };
