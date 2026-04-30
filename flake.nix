@@ -2,7 +2,7 @@
   description = "A utility for generating Mermaid diagrams from Terraform configurations";
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    nixpkgs-go.url = "github:nixos/nixpkgs/fcd023ec9e17481b4f80ffec0e9d0f36ed847b91";
+    nixpkgs-go.url = "github:nixos/nixpkgs/ef9ca28baceba7da849e0fdb18bab8d3173fd208";
     flake-utils.url = "github:numtide/flake-utils";
 
     gomod2nix = {
