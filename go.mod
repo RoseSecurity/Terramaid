@@ -10,7 +10,7 @@ require (
 	github.com/fatih/color v1.19.0
 	github.com/golangci/golangci-lint/v2 v2.12.1
 	github.com/hashicorp/copywrite v0.24.2
-	github.com/hashicorp/terraform-exec v0.25.1
+	github.com/hashicorp/terraform-exec v0.25.2
 	github.com/jwalton/go-supportscolor v1.2.0
 	github.com/mattn/go-colorable v0.1.14
 	github.com/spf13/cobra v1.10.2
