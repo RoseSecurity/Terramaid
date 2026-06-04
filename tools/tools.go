@@ -16,4 +16,4 @@ import (
 //go:generate terraform fmt -recursive ../test/
 
 // Run golangci-lint
-//go:generate golangci-lint run ../...
+//go:generate sh -c "cd .. && golangci-lint run ./..."

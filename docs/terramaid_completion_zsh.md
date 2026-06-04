@@ -48,3 +48,4 @@ terramaid completion zsh [flags]
 ### SEE ALSO
 
 * [terramaid completion](terramaid_completion.md)	 - Generate the autocompletion script for the specified shell
+
