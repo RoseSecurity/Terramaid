@@ -121,10 +121,7 @@ jobs:
         with:
           egress-policy: audit
 
-      - uses: mislav/bump-homebrew-formula-action@ccf2332299a883f6af50a1d2d41e5df7904dd769 # v4.1
+      - uses: dawidd6/action-homebrew-bump-formula@1446dca236b0440c6f02723a3f14f13be2c04ab0 # v7
         with:
           # A PR will be sent to github.com/Homebrew/homebrew-core to update this formula:
-          formula-name: terramaid
-          formula-path: Formula/t/terramaid.rb
-        env:
-          COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
+          formula: terramaid
