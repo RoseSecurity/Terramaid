@@ -31,4 +31,4 @@ run: build ## Run Terramaid
 docs: build ## Generate documentation
 	./build/$(BINARY_NAME) docs
 
-.PHONY: all build install clean run fmt help
+.PHONY: default all build install clean run fmt help
