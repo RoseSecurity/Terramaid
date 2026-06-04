@@ -29,3 +29,4 @@ terramaid run [flags]
 ### SEE ALSO
 
 * [terramaid](terramaid.md)	 - A utility for generating Mermaid diagrams from Terraform configurations
+
