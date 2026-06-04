@@ -125,3 +125,4 @@ jobs:
         with:
           # A PR will be sent to github.com/Homebrew/homebrew-core to update this formula:
           formula: terramaid
+          token: ${{ secrets.COMMITTER_TOKEN }}
