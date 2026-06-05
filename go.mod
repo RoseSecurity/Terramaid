@@ -6,7 +6,7 @@ require (
 	github.com/arsham/figurine v1.3.0
 	github.com/awalterschulze/gographviz v2.0.3+incompatible
 	github.com/briandowns/spinner v1.23.2
-	github.com/caarlos0/env/v11 v11.4.0
+	github.com/caarlos0/env/v11 v11.4.1
 	github.com/fatih/color v1.19.0
 	github.com/hashicorp/terraform-exec v0.25.1
 	github.com/jwalton/go-supportscolor v1.2.0
