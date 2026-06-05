@@ -8,6 +8,7 @@ github.com/apparentlymart/go-textseg/v15 v15.0.0 h1:uYvfpb3DyLSCGWnctWKGj857c6ew
 github.com/apparentlymart/go-textseg/v15 v15.0.0/go.mod h1:K8XmNZdhEBkdlyDdvbmmsvpAG721bKi0joRfFdHIWJ4=
 github.com/arsham/figurine v1.3.0 h1:vpGbzp460B1gkdFt9jrl95v4wDE2vP3BDcg0AKWJ7J0=
 github.com/arsham/figurine v1.3.0/go.mod h1:cnw6B/y/XzRObDhQoqNJnpAGuSSrkjCcqZCcMJ1ag/I=
+github.com/arsham/figurine/v2 v2.1.1/go.mod h1:+B4+esYEfbLGdQdnxx0fQpjHnxRBj1eKhkK+NeCkRCc=
 github.com/arsham/rainbow v1.2.1 h1:iS8o/1WAPVFvhtMZgdiy7zM8mD+XIWZfwzGXD6manKI=
 github.com/arsham/rainbow v1.2.1/go.mod h1:vERoG76FE/wN9rGJRv9H/tTfH873AX6wfQdJqNRy6fA=
 github.com/awalterschulze/gographviz v2.0.3+incompatible h1:9sVEXJBJLwGX7EQVhLm2elIKCm7P2YHFC8v6096G09E=

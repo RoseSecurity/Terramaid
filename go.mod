@@ -1,9 +1,10 @@
 module github.com/RoseSecurity/terramaid
 
-go 1.25.8
+go 1.26.2
 
 require (
 	github.com/arsham/figurine v1.3.0
+	github.com/arsham/figurine/v2 v2.1.1
 	github.com/awalterschulze/gographviz v2.0.3+incompatible
 	github.com/briandowns/spinner v1.23.2
 	github.com/caarlos0/env/v11 v11.4.0
