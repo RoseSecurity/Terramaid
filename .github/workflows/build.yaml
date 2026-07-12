@@ -121,7 +121,7 @@ jobs:
         with:
           egress-policy: audit
 
-      - uses: dawidd6/action-homebrew-bump-formula@1446dca236b0440c6f02723a3f14f13be2c04ab0 # v7
+      - uses: dawidd6/action-homebrew-bump-formula@a0e064e08103c01870c6d1b05168d1b726aab119 # v8
         with:
           # A PR will be sent to github.com/Homebrew/homebrew-core to update this formula:
           formula: terramaid
