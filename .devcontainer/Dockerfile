@@ -1,7 +1,7 @@
 # Copyright RoseSecurity 2024, 2026
 # SPDX-License-Identifier: Apache-2.0
 
-FROM golang:1.25@sha256:8b98ef74e4b8d677f2ba86167a970f205f72858b5ba271a929fa98cee245f17c AS build
+FROM golang:1.25@sha256:fb63357477ff4b1eba77af03185a0cafc475961e627cd3f78a7364ba66898187 AS build
 
 # Install Terramaid
 RUN go install github.com/RoseSecurity/terramaid@latest
